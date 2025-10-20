@@ -36,8 +36,8 @@ public class ProcessMediator : IAsyncDisposable
             try
             {
                 await using var jsonBackupStream = await fileSystemService.GetJsonBackupStream();
-                await using var jsonBackupService = new JsonBackupService(jsonBackupStream);
-                await using var scraper = new WordDefinitionWebScraperService(appSettings, logger, jsonBackupService);
+                await using var backupService = new BackupService(jsonBackupStream, fileSystemService);
+                await using var scraper = new WordDefinitionWebScraperService(appSettings, logger, backupService);
 
                 await scraper.ScrapeWordDefinitions(wordDefinitions, seedingWords);
                 wordDefinitions = scraper.WordDefinitions;

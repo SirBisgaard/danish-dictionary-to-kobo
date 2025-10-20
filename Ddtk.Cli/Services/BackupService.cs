@@ -4,42 +4,46 @@ using Ddtk.Cli.Models;
 
 namespace Ddtk.Cli.Services;
 
-public class JsonBackupService : IAsyncDisposable
+public class BackupService : IAsyncDisposable
 {
+    private readonly FileSystemService fileSystemService;
     private readonly StreamWriter jsonBackupStream;
-    
-    private readonly Channel<WordDefinition> wordDefinitionChannel;
+
+    private readonly Channel<(WordDefinition wordDefinition, string htmlDocument)> wordDefinitionChannel;
     private readonly Task consumerTask;
     
-    public JsonBackupService(StreamWriter jsonBackupStream)
+    public BackupService(StreamWriter jsonBackupStream, FileSystemService fileSystemService)
     {
+        this.fileSystemService = fileSystemService;
         this.jsonBackupStream = jsonBackupStream;
         this.jsonBackupStream.AutoFlush = true;
         
-        wordDefinitionChannel = Channel.CreateUnbounded<WordDefinition>(new UnboundedChannelOptions()
+        wordDefinitionChannel = Channel.CreateUnbounded<(WordDefinition wordDefinition, string htmlDocument)>(new UnboundedChannelOptions()
         {
             SingleReader = true,
             SingleWriter = false,
         });
 
-        consumerTask = Task.Run(ConsumeJson);
+        consumerTask = Task.Run(ConsumeBackupTasks);
     }
 
-    public ValueTask AddToQueue(WordDefinition wordDefinition) => wordDefinitionChannel.Writer.WriteAsync(wordDefinition);
+    public ValueTask AddToQueue(WordDefinition wordDefinition, string htmlDocument) => wordDefinitionChannel.Writer.WriteAsync(new ValueTuple<WordDefinition, string>(wordDefinition, htmlDocument));
 
-    private async Task ConsumeJson()
+    private async Task ConsumeBackupTasks()
     {
         var counter = 0L;
         var firstWrite = true;
         await jsonBackupStream.WriteLineAsync("[");
-        await foreach (var wordDefinition in wordDefinitionChannel.Reader.ReadAllAsync())
+        await foreach (var tuple in wordDefinitionChannel.Reader.ReadAllAsync())
         {
+            await fileSystemService.SaveHtmlDocument(tuple.wordDefinition.Word, tuple.htmlDocument);
+            
             if (!firstWrite)
             {
                 await jsonBackupStream.WriteLineAsync(",");
             }
             
-            var json = await WordDefinitionHelper.ToJson(wordDefinition);
+            var json = await WordDefinitionHelper.ToJson(tuple.wordDefinition);
             await jsonBackupStream.WriteAsync(json);
             
             firstWrite = false;

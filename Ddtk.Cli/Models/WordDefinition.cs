@@ -1,3 +1,6 @@
+using System.Globalization;
+using System.Text;
+
 namespace Ddtk.Cli.Models;
 
 public class WordDefinition(string word)
@@ -6,7 +9,7 @@ public class WordDefinition(string word)
     /// Ordet
     /// </summary>
     public string Word { get; set; } = word;
-
+    
     /// <summary>
     /// Prefix for the word, used for file naming and categorization.
     /// </summary>

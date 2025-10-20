@@ -19,7 +19,7 @@
       <CopyToPublishSingleFile>Always</CopyToPublishSingleFile>
       <Link>libmarisa.so</Link>
     </None>
-    <None Update="appSettings.json">
+    <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

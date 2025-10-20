@@ -10,7 +10,7 @@ using Timer = System.Timers.Timer;
 
 namespace Ddtk.Cli.Services;
 
-public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingService logger, JsonBackupService jsonBackupService) : IAsyncDisposable
+public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingService logger, BackupService backupService) : IAsyncDisposable
 {
     private readonly Stopwatch stopwatch = Stopwatch.StartNew();
     private readonly Timer timer = new();
@@ -26,11 +26,6 @@ public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingSer
     {
         logger.Log($" - Starting to scrape at: {appSettings.WebScraperBaseAddress}");
         await SeedChannel(seedingWords);
-        foreach (var wordDefinition in knownWordDefinitions)
-        {
-            await jsonBackupService.AddToQueue(wordDefinition);
-            processedWords.TryAdd(wordDefinition.Word.ToLower(), wordDefinition);
-        }
 
         for (var i = 0; i < workers.Length; i++)
         {
@@ -105,7 +100,7 @@ public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingSer
                 var wordDefinition = WordDefinitionHelper.FromHtml(htmlDocument);
                 if (wordDefinition is not null && processedWords.TryAdd(wordDefinition.Word.ToLower(), wordDefinition))
                 {
-                    await jsonBackupService.AddToQueue(wordDefinition);
+                    await backupService.AddToQueue(wordDefinition, html);
 
                     if (processedWords.Count % 1000 == 0)
                     {
@@ -172,7 +167,8 @@ public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingSer
         {
             var uri = new Uri(link);
 
-            var queryString = HttpUtility.ParseQueryString(WebUtility.UrlDecode(uri.Query));
+            var queryString = HttpUtility.ParseQueryString(WebUtility.UrlDecode(HttpUtility.HtmlDecode(uri.Query)));
+
             var queryWord = queryString["query"]?.ToLower();
             var selectWord = queryString["aselect"]?.ToLower();
             if (queryWord is null)

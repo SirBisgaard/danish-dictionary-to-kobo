@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -10,7 +11,7 @@ namespace Ddtk.Cli.Services;
 public class FileSystemService(AppSettings appSettings, LoggingService logger)
 {
     private static readonly string[] Suffixes = ["B", "KB", "MB", "GB", "TB", "PB", "EB"];
-    
+
     public Task<StreamWriter> GetJsonBackupStream()
     {
         var currentDir = AppContext.BaseDirectory;
@@ -70,16 +71,45 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
 
             return words;
         }
-        
+
         logger.Log($" - File not found: {path}");
         return [];
+    }
+
+    public async Task SaveHtmlDocument(string name, string document)
+    {
+        var currentDir = AppContext.BaseDirectory;
+        var directory = Path.Combine(currentDir, "html-files");
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+        
+        name = ToSafeFileName(name);
+
+        var directoryPath = Path.Combine(currentDir, "html-files");
+        var path = Path.Combine(directoryPath, name + ".html");
+        if (File.Exists(path))
+        {
+            var index = 1;
+            string candidate;
+            do
+            {
+                candidate = Path.Combine(directoryPath, $"{name}-{index}.html");
+                index++;
+            } while (File.Exists(candidate));
+
+            path = candidate;
+        }
+
+        await File.WriteAllTextAsync(path, document, Encoding.UTF8);
     }
 
     public void SaveKoboDictionary(List<WordDefinition> wordDefinitions)
     {
         var wordList = wordDefinitions.Select(w => w.Word).ToList();
         var prefixes = wordDefinitions.Select(w => w.WordPrefix).Distinct().ToList();
-        
+
         // 1) Prepare a clean temp directory
         var tempDirectory = new DirectoryInfo(Path.Combine(AppContext.BaseDirectory, "kobo_tmp"));
         if (tempDirectory.Exists)
@@ -87,13 +117,14 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
             logger.Log($" - Deleting existing temporary directory: {tempDirectory}");
             tempDirectory.Delete(true);
         }
+
         tempDirectory.Create();
         var testHtmlFile = Path.Combine(AppContext.BaseDirectory, appSettings.ExportKoboDictionaryTestHtmlFileName);
         if (File.Exists(testHtmlFile))
         {
             File.Delete(testHtmlFile);
         }
-        
+
         // 2) For each prefix: write .raw.html then gzip→ .html
         logger.Log(" - Writing Kobo dictionary files.");
         foreach (var prefix in prefixes)
@@ -106,11 +137,13 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
             {
                 streamWriter.WriteLine(WordDefinitionHelper.ToKoboHtml(appSettings, word));
             }
+
             streamWriter.Flush();
             streamWriter.Dispose();
-            
-            File.AppendAllLines(testHtmlFile,words.Select(w => WordDefinitionHelper.ToKoboHtml(appSettings, w)), Encoding.UTF8);
-            
+
+            File.AppendAllLines(testHtmlFile, words.Select(w => WordDefinitionHelper.ToKoboHtml(appSettings, w)),
+                Encoding.UTF8);
+
             var gz = Path.Combine(tempDirectory.FullName, $"{prefix}.html");
             using var fin = File.OpenRead(raw);
             using var fout = File.Create(gz);
@@ -120,7 +153,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
 
         // 3) Write the "words" index (plain newline‑separated)
         BuildKoboMarisaTrieWordLookupFile(wordList, Path.Combine(tempDirectory.FullName, "words"));
-        
+
 
         // 4) Build the ZIP
         logger.Log(" - Creating Kobo dictionary ZIP file.");
@@ -132,7 +165,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
         {
             w.Write(wordList.Count.ToString());
         }
-        
+
         var snapshotFile = zip.CreateEntry("words.snapshot");
         using (var w = new StreamWriter(snapshotFile.Open(), Encoding.UTF8))
         {
@@ -147,7 +180,8 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
 
         tempDirectory.Delete(true);
 
-        logger.Log($" - Kobo dictionary ZIP file created: {appSettings.ExportKoboDictionaryFileName} ({ToReadableSize(zipFs.Length)})");
+        logger.Log(
+            $" - Kobo dictionary ZIP file created: {appSettings.ExportKoboDictionaryFileName} ({ToReadableSize(zipFs.Length)})");
         logger.Log($" - With {wordList.Count} words and {prefixes.Count} prefixes.");
     }
 
@@ -165,11 +199,108 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
         {
             MarisaNative.PushIntoBuilder(builder, key, key.Length);
         }
+
         var trie = MarisaNative.BuildBuilder(builder);
-       
+
         MarisaNative.DestroyBuilder(builder);
         MarisaNative.SaveTrie(trie, outputPath);
         MarisaNative.DestroyTrie(trie);
+    }
+    
+    private static string ToSafeFileName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "_";
+
+        // Custom replacements for common non-ASCII letters to preserve readability
+        var sb = new StringBuilder(name.Trim());
+
+        // Normalize quotes and dashes to ASCII equivalents
+        sb.Replace('“', '"').Replace('”', '"').Replace('„', '"').Replace('‟', '"');
+        sb.Replace('–', '-').Replace('—', '-').Replace('−', '-');
+
+        // Language specific
+        sb.Replace("æ", "ae").Replace("Æ", "Ae");
+        sb.Replace("ø", "oe").Replace("Ø", "Oe");
+        sb.Replace("å", "aa").Replace("Å", "Aa");
+        sb.Replace("ß", "ss");
+        sb.Replace("œ", "oe").Replace("Œ", "Oe");
+        sb.Replace("ð", "d").Replace("Ð", "D");
+        sb.Replace("þ", "th").Replace("Þ", "Th");
+        sb.Replace("ł", "l").Replace("Ł", "L");
+
+        // Decompose and remove diacritics (convert, not delete letters)
+        var normalized = sb.ToString().Normalize(NormalizationForm.FormD);
+        var outSb = new StringBuilder(normalized.Length);
+        foreach (var ch in normalized)
+        {
+            var uc = CharUnicodeInfo.GetUnicodeCategory(ch);
+            if (uc != UnicodeCategory.NonSpacingMark && uc != UnicodeCategory.SpacingCombiningMark && uc != UnicodeCategory.EnclosingMark)
+            {
+                outSb.Append(ch);
+            }
+        }
+        var asciiLike = outSb.ToString().Normalize(NormalizationForm.FormC);
+
+        // Windows invalid chars
+        var invalids = new HashSet<char>(Path.GetInvalidFileNameChars());
+
+        var result = new StringBuilder();
+        foreach (var ch in asciiLike)
+        {
+            // Allow letters, digits, and a small set of safe punctuation
+            if (char.IsLetterOrDigit(ch))
+            {
+                result.Append(ch);
+                continue;
+            }
+
+            switch (ch)
+            {
+                case ' ': result.Append('_'); break;
+                case '-':
+                case '_':
+                case '.':
+                case ',':
+                case '+':
+                case '=':
+                case '!':
+                case '@':
+                case '#':
+                case '$':
+                case '%':
+                case '&':
+                case '(': 
+                case ')': 
+                    // Keep some benign punctuation
+                    result.Append(ch); 
+                    break;
+                default:
+                    if (invalids.Contains(ch) || ch < ' ')
+                    {
+                        result.Append('_');
+                    }
+                    else
+                    {
+                        // For any other symbol, map to underscore to avoid surprises
+                        result.Append('_');
+                    }
+                    break;
+            }
+        }
+
+        var safe = result.ToString();
+
+        // Collapse multiple underscores
+        while (safe.Contains("__")) 
+            safe = safe.Replace("__", "_");
+
+        // Trim dots and spaces from end (Windows restriction)
+        safe = safe.Trim('.').Trim(' ');
+
+        if (safe.Length == 0) 
+            safe = "_";
+
+        return safe;
     }
 
     private static string ToReadableSize(long byteCount)
