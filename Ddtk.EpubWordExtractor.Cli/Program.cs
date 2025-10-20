@@ -41,27 +41,36 @@ foreach (var epubPath in Directory.GetFiles(AppContext.BaseDirectory).Where(f =>
 
         foreach (var file in htmlFiles)
         {
-            var document = new HtmlDocument();
-            document.Load(file);
-            var text = document.DocumentNode
-                .Descendants()
-                .Where(n => n.NodeType == HtmlNodeType.Text &&
-                            !string.IsNullOrWhiteSpace(n.InnerText))
-                .Select(n => n.InnerText)
-                .Aggregate((a, b) => $"{a} {b}");
-
-            foreach (Match wordMatch in wordRegex.Matches(text))
+            try
             {
-                wordSet.Add(wordMatch.Value.ToLowerInvariant());
+                var document = new HtmlDocument();
+                document.Load(file);
+                var text = document.DocumentNode
+                    .Descendants()
+                    .Where(n => n.NodeType == HtmlNodeType.Text &&
+                                !string.IsNullOrWhiteSpace(n.InnerText))
+                    .Select(n => n.InnerText)
+                    .Aggregate((a, b) => $"{a} {b}");
+
+                foreach (Match wordMatch in wordRegex.Matches(text))
+                {
+                    wordSet.Add(wordMatch.Value.ToLowerInvariant());
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($" - Error: {e.Message}");
             }
         }
-
-        // Clean up
-        Directory.Delete(tempFolder, true);
     }
     catch (Exception e)
     {
         Console.WriteLine($" - Error: {e.Message}");
+    }
+    finally
+    {
+        // Clean up
+        Directory.Delete(tempFolder, true);
     }
 }
 
