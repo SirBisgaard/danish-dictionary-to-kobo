@@ -39,7 +39,7 @@ public class ProcessMediator : IAsyncDisposable
                 await using var backupService = new BackupService(jsonBackupStream, fileSystemService);
                 await using var scraper = new WordDefinitionWebScraperService(appSettings, logger, backupService);
 
-                await scraper.ScrapeWordDefinitions(wordDefinitions, seedingWords);
+                await scraper.ScrapeWordDefinitions(seedingWords);
                 wordDefinitions = scraper.WordDefinitions;
             }
             catch (Exception e)

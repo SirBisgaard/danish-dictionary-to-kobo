@@ -22,11 +22,11 @@ public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingSer
     private readonly Channel<string> channel = Channel.CreateUnbounded<string>(new UnboundedChannelOptions { SingleReader = false, SingleWriter = false });
     private readonly Task[] workers = new Task[appSettings.WebScraperWorkerCount];
 
-    public async Task ScrapeWordDefinitions(List<WordDefinition> knownWordDefinitions, string[] seedingWords)
+    public async Task ScrapeWordDefinitions(string[] seedingWords)
     {
         logger.Log($" - Starting to scrape at: {appSettings.WebScraperBaseAddress}");
         await SeedChannel(seedingWords);
-
+        
         for (var i = 0; i < workers.Length; i++)
         {
             workers[i] = Task.Run(ProcessUrlTask);
