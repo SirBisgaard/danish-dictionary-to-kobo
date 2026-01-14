@@ -23,6 +23,7 @@ Ddtk.Cli/                   # Main dictionary generation CLI
 └── appsettings.json        # Configuration file
 
 Ddtk.EpubWordExtractor.Cli/ # Epub word extraction tool
+Ddtk.Tests/                 # Test project (xUnit + FluentAssertions)
 c-shim/                     # C++ interop shim for marisa-trie
 ```
 
@@ -68,13 +69,72 @@ cd c-shim
 
 ## Testing
 
-**Status:** No automated tests currently exist.
+**Framework:** xUnit with FluentAssertions  
+**Location:** `Ddtk.Tests/` directory  
+**Status:** Integration tests exist for `MarisaNative.cs`
 
-If implementing tests:
-- Use xUnit, NUnit, or MSTest framework
-- Place tests in `Ddtk.Cli.Tests/` directory
-- Run with: `dotnet test`
-- Run single test: `dotnet test --filter "FullyQualifiedName~TestMethodName"`
+### Running Tests
+
+```bash
+# Run all tests
+dotnet test
+
+# Run tests in specific project
+dotnet test Ddtk.Tests/Ddtk.Tests.csproj
+
+# Run single test
+dotnet test --filter "FullyQualifiedName~TestMethodName"
+
+# Run with detailed output
+dotnet test --logger "console;verbosity=detailed"
+```
+
+### Test Structure
+
+Tests follow the **Arrange-Act-Assert (AAA)** pattern:
+
+```csharp
+[Fact]
+public void MethodName_ShouldExpectedBehavior_WhenCondition()
+{
+    // Arrange
+    // Set up test dependencies and inputs
+    
+    // Act
+    // Execute the method under test
+    
+    // Assert
+    // Verify the expected outcome
+}
+```
+
+### Test Guidelines
+
+- **Test Naming:** Use `MethodName_ShouldExpectedBehavior_WhenCondition` pattern
+- **Test Isolation:** Each test should be independent and self-contained
+- **Cleanup:** Implement `IDisposable` for test fixtures requiring cleanup
+- **Temp Files:** Use test execution directory (`AppContext.BaseDirectory`) for temporary files
+- **Integration Tests:** Tests that verify native library integration are acceptable
+- **FluentAssertions:** Use fluent syntax for readable assertions (e.g., `result.Should().Be(expected)`)
+
+### Current Test Coverage
+
+- **MarisaNative.cs:** Full integration test coverage
+  - Native library loading (`BindMarisa`)
+  - Builder creation and destruction
+  - Key insertion (including UTF-8 Danish characters)
+  - Trie building and serialization
+  - File I/O operations
+
+### Adding New Tests
+
+When implementing new tests:
+1. Create test class in `Ddtk.Tests/` directory
+2. Use xUnit `[Fact]` or `[Theory]` attributes
+3. Follow AAA pattern with clear comments
+4. Use FluentAssertions for assertions
+5. Implement cleanup via `IDisposable` if needed
+6. Test both success and error paths where appropriate
 
 ## Code Style Guidelines
 
@@ -201,7 +261,7 @@ Always validate configuration loaded successfully before use.
 
 - **Single-File Deployment:** Application publishes as single executable
 - **Native Library:** `libmarisa.so` embedded via `IncludeNativeLibrariesForSelfExtract`
-- **No Tests Yet:** Consider adding tests when making significant changes
+- **Tests Available:** Integration tests for native library in `Ddtk.Tests/` project
 - **No Linter:** Follow IDE (Rider) suggestions and C# conventions
 - **Web Scraping:** Respects source copyright (included in dictionary metadata)
 - **Backup System:** JSON backup created during scraping for recovery
@@ -214,7 +274,7 @@ Always validate configuration loaded successfully before use.
 4. **Dispose Properly:** Implement IAsyncDisposable for resources
 5. **Log Appropriately:** Use logger service for all output
 6. **Configuration:** Add new settings to AppSettings.cs and appsettings.json
-7. **Test Manually:** Run the application and verify behavior (no automated tests)
+7. **Test Changes:** Write tests for new functionality, run `dotnet test` before committing
 
 ## Code References
 

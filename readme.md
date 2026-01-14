@@ -49,6 +49,9 @@ danish-dictionary-to-kobo/
 ├── Ddtk.EpubWordExtractor.Cli/      # Epub word extraction utility
 │   └── Program.cs                   # Extracts words from Epub files
 │
+├── Ddtk.Tests/                      # Test project (xUnit + FluentAssertions)
+│   └── MarisaNativeTests.cs         # Integration tests for native library
+│
 ├── c-shim/                          # C++ interop shim
 │   ├── build_c_shim.sh              # Build script for libmarisa.so
 │   └── *.cpp                        # C++ wrapper code
@@ -218,13 +221,53 @@ The application uses a service-oriented architecture with the following key comp
 
 ## 🧪 Testing
 
-**Current Status**: No automated tests exist.
+This project uses xUnit with FluentAssertions for testing.
 
-To test manually:
-1. Run with small word list first
-2. Verify output files are generated
-3. Check `logs.log` for errors
-4. Test dictionary on actual Kobo device
+### Running Tests
+
+```bash
+# Run all tests
+dotnet test
+
+# Run tests with detailed output
+dotnet test --logger "console;verbosity=detailed"
+
+# Run tests in specific project
+dotnet test Ddtk.Tests/Ddtk.Tests.csproj
+
+# Run single test method
+dotnet test --filter "FullyQualifiedName~MethodName"
+```
+
+### Current Test Coverage
+
+- **MarisaNative Integration Tests**: Full coverage of native library operations
+  - Native library loading
+  - Builder creation and destruction
+  - Key insertion (including UTF-8 Danish characters)
+  - Trie building and serialization
+  - File I/O operations
+
+### Writing Tests
+
+Tests follow the Arrange-Act-Assert (AAA) pattern:
+
+```csharp
+[Fact]
+public void MethodName_ShouldExpectedBehavior_WhenCondition()
+{
+    // Arrange
+    var input = "test";
+    
+    // Act
+    var result = MethodUnderTest(input);
+    
+    // Assert
+    result.Should().Be("expected");
+}
+```
+
+For more details on testing guidelines, see `AGENTS.md`.
 
 ## 🤝 Contributing
 
@@ -233,10 +276,11 @@ Contributions are welcome! Please follow these guidelines:
 1. **Fork the repository**
 2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
 3. **Follow code style** guidelines in `AGENTS.md`
-4. **Test thoroughly** on Linux x64
-5. **Commit changes** (`git commit -m 'Add amazing feature'`)
-6. **Push to branch** (`git push origin feature/amazing-feature`)
-7. **Open a Pull Request**
+4. **Write tests** for new functionality
+5. **Test thoroughly** on Linux x64 (`dotnet test`)
+6. **Commit changes** (`git commit -m 'Add amazing feature'`)
+7. **Push to branch** (`git push origin feature/amazing-feature`)
+8. **Open a Pull Request**
 
 ### Code Style
 
