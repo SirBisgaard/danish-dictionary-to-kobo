@@ -1,79 +1,262 @@
-# 🇩🇰 Danish Dictionary to Kobo
+# Danish Dictionary to Kobo
 
+> A .NET console application that generates Kobo-compatible Danish dictionaries by web scraping, enabling native Danish word lookups on Kobo e-readers.
 
-## 📖 Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![C#](https://img.shields.io/badge/C%23-11-239120?logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+[![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?logo=linux&logoColor=black)](https://www.linux.org/)
 
-**Danish Dictionary to Kobo** is a C# console application that scrapes Danish word definitions from a online dictionary, processes the data, and generates a Kobo-compatible dictionary file (`dicthtml-da-da`). 
+## 📖 About
 
-This enables Kobo users to look up Danish words directly on their devices while reading.
+This project automates the creation of Danish dictionaries for Kobo e-readers. It scrapes Danish word definitions from online sources, processes the data, and generates a Kobo-compatible dictionary file (`dicthtml-da-da.zip`). Once installed on a Kobo device, users can look up Danish words directly while reading.
 
+**Key Features:**
+- **Epub Word Extraction**: Extract word lists from Epub files for targeted dictionary creation
+- **Automated Web Scraping**: Retrieve word definitions and grammatical information
+- **Kobo Format Generation**: Produces ready-to-use dictionary files in Kobo's proprietary format
+- **Efficient Storage**: Uses marisa-trie for compact dictionary storage
+- **Backup System**: Maintains JSON backup of scraped definitions for recovery
 
 ## ⚠️ Disclaimer
-This project is provided for educational purposes only. 
 
-It is not affiliated with or endorsed by Kobo or the source dictionary website. Use responsibly and respect the terms of service of any third-party resources.
+This project is provided **for educational purposes only**. It is not affiliated with or endorsed by Kobo or any dictionary provider. Users are responsible for respecting the terms of service of third-party resources and applicable copyright laws.
 
+## 🛠️ Technology Stack
 
-## ✨ Features
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| .NET | 9.0 | Runtime and SDK |
+| C# | 11+ | Primary language |
+| HtmlAgilityPack | Latest | HTML/XHTML parsing |
+| marisa-trie | Latest | Efficient trie data structure |
+| C++ Build Tools | - | Native library compilation |
 
-- **📚 Epub Word Extractor:** Extracts words directly from Epub files to be used in the main tool.
-- **🌐 Web Scraping:** Scrapes the source for words to be used in the dictionary.
-- **📖 Kobo Dictionary Generation:** Generates and exports data into the Kobo dictionary format.
+## 📁 Project Structure
 
+```
+danish-dictionary-to-kobo/
+├── Ddtk.Cli/                         # Main dictionary generation tool
+│   ├── Program.cs                   # Application entry point
+│   ├── ProcessMediator.cs           # Main orchestrator
+│   ├── AppSettings.cs               # Configuration model
+│   ├── appsettings.json             # Configuration file
+│   ├── Helpers/                     # Utility classes and extensions
+│   ├── Models/                      # Data models (WordDefinition, etc.)
+│   ├── Services/                    # Business logic services
+│   └── runtimes/linux-x64/native/   # Native marisa-trie library
+│
+├── Ddtk.EpubWordExtractor.Cli/      # Epub word extraction utility
+│   └── Program.cs                   # Extracts words from Epub files
+│
+├── c-shim/                          # C++ interop shim
+│   ├── build_c_shim.sh              # Build script for libmarisa.so
+│   └── *.cpp                        # C++ wrapper code
+│
+├── AGENTS.md                        # Guidelines for AI agents
+└── readme.md                        # This file
+```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Linux](https://www.linuxfoundation.org/)
-- [9 SDK](https://dotnet.microsoft.com/en-us/download)
-- Build tools for C++
-- Internet connection (for scraping)
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
+- Linux operating system (x64)
+- C++ build tools (`g++`, `make`)
+- Internet connection (for web scraping)
 
-### Run it Yourself
+### Installation
 
- - Clone the repository
- - Generate the C shim file via `build_c_shim.sh` (This is required for being able to use the marisa-trie library)
-   - (Or use the one provided in the repository, but it is not advisable to run the `build_c_shim.sh` in the repository folder)
- - Copy the generated `libmarisa.so` file to the `danish-dictionary-to-kobo/Ddtk.Cli/runtimes/linux-x64/native` directory
- - Publish the project using `dotnet publish`
- - Copy the binary files from the publish directories.
- - (Optional to use the `Ddtk.EpubWordExtractor.Cli` now to generate a list of words from Epub files)
-   - The epub files need to be int the same directory as the `EpubWordExtractor` executable.
- - Run the `Ddtk.Cli` executable and wait for it to finish processing.
-   - You can specify the `--skip-web-scraping` option to skip web scraping.
- - The generated Kobo dictionary `dicthtml-da-da.zip` file will be located in the same directory as the executable.
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/danish-dictionary-to-kobo.git
+   cd danish-dictionary-to-kobo
+   ```
 
-### Example Output Directory Structure
+2. **Build the native library**
+   ```bash
+   cd c-shim
+   ./build_c_shim.sh
+   ```
+   
+   This compiles the C++ shim and marisa-trie library, generating `libmarisa.so`.
+
+3. **Copy the native library**
+   ```bash
+   cp libmarisa.so ../Ddtk.Cli/runtimes/linux-x64/native/
+   cd ..
+   ```
+
+4. **Build the application**
+   ```bash
+   # Restore dependencies
+   dotnet restore
+   
+   # Build in Release mode
+   dotnet build --configuration Release
+   
+   # Or publish as self-contained executable
+   dotnet publish -c Release -r linux-x64 --self-contained
+   ```
+
+5. **Run the application**
+   ```bash
+   # Run directly with dotnet
+   dotnet run --project Ddtk.Cli
+   
+   # Or run the published binary
+   ./Ddtk.Cli/bin/Release/net9.0/linux-x64/publish/Ddtk.Cli
+   ```
+
+### Command-Line Options
+
+```bash
+# Generate dictionary with web scraping (default)
+./Ddtk.Cli
+
+# Skip web scraping (use existing JSON backup)
+./Ddtk.Cli --skip-web-scraping
+```
+
+## 📚 Using the Epub Word Extractor
+
+The Epub Word Extractor helps create targeted dictionaries by extracting unique words from Epub files.
+
+### Setup
+
+1. **Place Epub files** in the same directory as the `Ddtk.EpubWordExtractor.Cli` executable
+
+2. **Run the extractor**
+   ```bash
+   dotnet run --project Ddtk.EpubWordExtractor.Cli
+   ```
+
+3. **Output**: `extracted_words.txt` containing unique words from all Epub files
+
+4. **Use with main tool**: The main dictionary generator can use this word list to prioritize scraping
+
+## 📦 Output Files
+
+After running the dictionary generator, you'll find these files:
 
 ```
 ./
-├── Ddtk.Cli (Executable)
-├── Ddtk.Cli.pdb (For debugging)
-├── dicthtml-da-da.html (Example of the generated HTML inside the Kobo dictionary)
-├── dicthtml-da-da.json (Backup of all scraped word definitions)
-├── dicthtml-da-da.zip (Generated Kobo dictionary file)
-├── extracted_words.txt (Generated list of words from Epub files)
-├── logs.log (Logs of the scraping process)
+├── Ddtk.Cli                        # Executable
+├── dicthtml-da-da.zip              # Kobo dictionary file (INSTALL THIS)
+├── dicthtml-da-da.json             # JSON backup of scraped data
+├── dicthtml-da-da.html             # HTML preview of dictionary entries
+├── extracted_words.txt             # Word list from Epubs (if used)
+└── logs.log                        # Application logs
 ```
+
+**To install on Kobo:**
+1. Connect Kobo device to computer
+2. Copy `dicthtml-da-da.zip` to `.kobo/dict/` directory on device
+3. Safely eject device
+4. Dictionary will be available for Danish language lookups
+
+## 🔧 Configuration
+
+Edit `appsettings.json` to configure:
+
+```json
+{
+  "SourceUrl": "https://example-dictionary.dk",
+  "MaxConcurrentRequests": 10,
+  "RequestDelayMs": 100,
+  "OutputDirectory": "./output",
+  "SeedingWordsFile": "extracted_words.txt"
+}
+```
+
+**Configuration Options:**
+- `SourceUrl`: Base URL for dictionary source
+- `MaxConcurrentRequests`: Concurrent scraping threads
+- `RequestDelayMs`: Delay between requests (rate limiting)
+- `OutputDirectory`: Where to save generated files
+- `SeedingWordsFile`: Input word list for targeted scraping
+
+## 🏗️ Development
+
+### Build Commands
+
+```bash
+# Restore dependencies
+dotnet restore
+
+# Build (Debug)
+dotnet build
+
+# Build (Release)
+dotnet build --configuration Release
+
+# Run with specific project
+dotnet run --project Ddtk.Cli
+
+# Publish self-contained binary
+dotnet publish -c Release -r linux-x64 --self-contained
+```
+
+### Project Architecture
+
+The application uses a service-oriented architecture with the following key components:
+
+- **ProcessMediator**: Orchestrates the entire dictionary generation workflow
+- **FileSystemService**: Handles file I/O operations
+- **LoggingService**: Provides logging with progress tracking
+- **WebScrapingService**: Scrapes word definitions from source
+- **KoboGeneratorService**: Generates Kobo dictionary format
+
+### Adding New Features
+
+1. Create service class in `Services/` directory
+2. Implement business logic with async/await patterns
+3. Register service in `ProcessMediator`
+4. Update configuration model if needed
+5. Test manually with various input scenarios
+
+## 🧪 Testing
+
+**Current Status**: No automated tests exist.
+
+To test manually:
+1. Run with small word list first
+2. Verify output files are generated
+3. Check `logs.log` for errors
+4. Test dictionary on actual Kobo device
 
 ## 🤝 Contributing
 
-Contributions are welcome!  
-Please open issues or submit pull requests for improvements or bug fixes.
+Contributions are welcome! Please follow these guidelines:
 
+1. **Fork the repository**
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Follow code style** guidelines in `AGENTS.md`
+4. **Test thoroughly** on Linux x64
+5. **Commit changes** (`git commit -m 'Add amazing feature'`)
+6. **Push to branch** (`git push origin feature/amazing-feature`)
+7. **Open a Pull Request**
 
-## 📄 License
+### Code Style
 
-Licensed under the [MIT License](LICENSE).
+- Use file-scoped namespaces
+- Enable nullable reference types
+- Follow async/await patterns
+- Use modern C# syntax (primary constructors, collection expressions)
+- See `AGENTS.md` for detailed guidelines
 
+## 📝 License
 
-## 🙏 Acknowledgements
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-- [HtmlAgilityPack](https://html-agility-pack.net/) for HTML parsing.
-- [Marisa-Trie](https://github.com/s-yata/marisa-trie) for efficient static and space-saving trie data structures.
-- The source Danish dictionary website for making their data available.
+## 🙏 Acknowledgments
+
+- [HtmlAgilityPack](https://html-agility-pack.net/) - HTML parsing and web scraping
+- [marisa-trie](https://github.com/s-yata/marisa-trie) - Efficient trie data structures
+- [.NET Foundation](https://dotnet.microsoft.com/) - Runtime and tooling
+- Danish dictionary sources for providing linguistic data
 
 ---
 
-Happy reading! 📖✨
+⭐ **Star this repository if you found it helpful!**
