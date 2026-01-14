@@ -1,10 +1,8 @@
 ﻿using Ddtk.Cli;
 using Microsoft.Extensions.Configuration;
 using Terminal.Gui.App;
-using Terminal.Gui.Configuration;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
-using ConfigurationManager = Microsoft.Extensions.Configuration.ConfigurationManager;
 
 var config = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
