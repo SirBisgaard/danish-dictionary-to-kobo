@@ -27,9 +27,6 @@ var host = Host.CreateDefaultBuilder()
         services.AddTransient<TerminalOrchestrator>();
 
         // Windows
-        // services.AddTransient<ChatWindow>();
-        // services.AddTransient<LoginWindow>();
-        // services.AddTransient<LobbyWindow>();
 
         services.AddLogging(builder =>
             {

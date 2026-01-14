@@ -40,8 +40,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Ddtk.Domain\Ddtk.Domain.csproj" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Views\" />
-  </ItemGroup>
 </Project>
