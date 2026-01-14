@@ -1,6 +1,6 @@
 using System.Threading.Channels;
 using Ddtk.Cli.Helpers;
-using Ddtk.Cli.Models;
+using Ddtk.Domain.Models;
 
 namespace Ddtk.Cli.Services;
 

@@ -2,8 +2,8 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Ddtk.Cli.Models;
 using Ddtk.Cli.Services;
+using Ddtk.Domain.Models;
 using HtmlAgilityPack;
 
 namespace Ddtk.Cli.Helpers;

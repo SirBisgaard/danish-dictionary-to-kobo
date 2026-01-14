@@ -1,7 +1,4 @@
-using System.Globalization;
-using System.Text;
-
-namespace Ddtk.Cli.Models;
+namespace Ddtk.Domain.Models;
 
 public class WordDefinition(string word)
 {

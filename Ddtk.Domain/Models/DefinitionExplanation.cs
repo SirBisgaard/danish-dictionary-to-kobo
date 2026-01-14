@@ -1,4 +1,4 @@
-namespace Ddtk.Cli.Models;
+namespace Ddtk.Domain.Models;
 
 public class DefinitionExplanation
 {

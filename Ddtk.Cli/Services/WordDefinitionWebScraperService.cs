@@ -4,7 +4,7 @@ using System.Net;
 using System.Threading.Channels;
 using System.Web;
 using Ddtk.Cli.Helpers;
-using Ddtk.Cli.Models;
+using Ddtk.Domain.Models;
 using HtmlAgilityPack;
 using Timer = System.Timers.Timer;
 

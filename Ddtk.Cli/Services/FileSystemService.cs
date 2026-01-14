@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Ddtk.Cli.Helpers;
-using Ddtk.Cli.Models;
+using Ddtk.Domain.Models;
 
 namespace Ddtk.Cli.Services;
 
