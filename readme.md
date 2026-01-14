@@ -3,8 +3,8 @@
 > A .NET console application that generates Kobo-compatible Danish dictionaries by web scraping, enabling native Danish word lookups on Kobo e-readers.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
-[![C#](https://img.shields.io/badge/C%23-11-239120?logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![C#](https://img.shields.io/badge/C%23-13-239120?logo=csharp)](https://learn.microsoft.com/en-us/dotnet/csharp/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?logo=linux&logoColor=black)](https://www.linux.org/)
 
 ## 📖 About
@@ -26,8 +26,8 @@ This project is provided **for educational purposes only**. It is not affiliated
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| .NET | 9.0 | Runtime and SDK |
-| C# | 11+ | Primary language |
+| .NET | 10.0 | Runtime and SDK |
+| C# | 13+ | Primary language |
 | HtmlAgilityPack | Latest | HTML/XHTML parsing |
 | marisa-trie | Latest | Efficient trie data structure |
 | C++ Build Tools | - | Native library compilation |
@@ -61,7 +61,7 @@ danish-dictionary-to-kobo/
 
 ### Prerequisites
 
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download) or later
 - Linux operating system (x64)
 - C++ build tools (`g++`, `make`)
 - Internet connection (for web scraping)
@@ -106,7 +106,7 @@ danish-dictionary-to-kobo/
    dotnet run --project Ddtk.Cli
    
    # Or run the published binary
-   ./Ddtk.Cli/bin/Release/net9.0/linux-x64/publish/Ddtk.Cli
+   ./Ddtk.Cli/bin/Release/net10.0/linux-x64/publish/Ddtk.Cli
    ```
 
 ### Command-Line Options

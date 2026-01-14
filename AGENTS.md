@@ -4,7 +4,7 @@ This document provides guidelines for AI coding agents working in this repositor
 
 ## Project Overview
 
-**Type:** .NET 9.0 Console Application (C#)  
+**Type:** .NET 10.0 Console Application (C#)  
 **Purpose:** Generate Danish dictionaries for Kobo e-readers by web scraping
 **Architecture:** Service-oriented with mediator pattern  
 **Target Platform:** Linux x64 (but uses cross-platform .NET)
@@ -79,7 +79,7 @@ If implementing tests:
 ## Code Style Guidelines
 
 ### Language Features
-- **C# Version:** 11+ (with .NET 9.0 features)
+- **C# Version:** 13+ (with .NET 10.0 features)
 - **Nullable Reference Types:** Enabled - always annotate nullability
 - **Implicit Usings:** Enabled - common namespaces auto-imported
 - **File-Scoped Namespaces:** Use `namespace Ddtk.Cli;` (not braces)
