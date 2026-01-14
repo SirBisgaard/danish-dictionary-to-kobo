@@ -3,12 +3,13 @@ using System.Diagnostics;
 using System.Net;
 using System.Threading.Channels;
 using System.Web;
-using Ddtk.Cli.Helpers;
+using Ddtk.Business.Helpers;
+using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using HtmlAgilityPack;
 using Timer = System.Timers.Timer;
 
-namespace Ddtk.Cli.Services;
+namespace Ddtk.Business.Services;
 
 public class WordDefinitionWebScraperService(AppSettings appSettings, LoggingService logger, BackupService backupService) : IAsyncDisposable
 {

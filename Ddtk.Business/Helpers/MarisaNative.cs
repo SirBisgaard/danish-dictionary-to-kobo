@@ -1,7 +1,7 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Ddtk.Cli.Helpers;
+namespace Ddtk.Business.Helpers;
 
 /// <summary>
 /// Huge thanks to the marisa-trie project for providing the native library.

@@ -3,10 +3,11 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Ddtk.Cli.Helpers;
+using Ddtk.Business.Helpers;
+using Ddtk.Domain;
 using Ddtk.Domain.Models;
 
-namespace Ddtk.Cli.Services;
+namespace Ddtk.Business.Services;
 
 public class FileSystemService(AppSettings appSettings, LoggingService logger)
 {

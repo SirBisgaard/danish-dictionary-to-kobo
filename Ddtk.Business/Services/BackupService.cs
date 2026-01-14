@@ -1,8 +1,8 @@
 using System.Threading.Channels;
-using Ddtk.Cli.Helpers;
+using Ddtk.Business.Helpers;
 using Ddtk.Domain.Models;
 
-namespace Ddtk.Cli.Services;
+namespace Ddtk.Business.Services;
 
 public class BackupService : IAsyncDisposable
 {

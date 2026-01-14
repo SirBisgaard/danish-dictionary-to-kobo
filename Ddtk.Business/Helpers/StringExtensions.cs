@@ -1,4 +1,4 @@
-namespace Ddtk.Cli.Helpers;
+namespace Ddtk.Business.Helpers;
 
 public static class StringExtensions
 {

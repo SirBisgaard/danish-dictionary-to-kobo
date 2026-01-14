@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace Ddtk.Cli;
+namespace Ddtk.Domain;
 
 public class AppSettings
 {

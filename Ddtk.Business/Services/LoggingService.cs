@@ -1,7 +1,8 @@
 using System.Text;
 using System.Threading.Channels;
+using Ddtk.Domain;
 
-namespace Ddtk.Cli.Services;
+namespace Ddtk.Business.Services;
 
 public class LoggingService : IAsyncDisposable
 {

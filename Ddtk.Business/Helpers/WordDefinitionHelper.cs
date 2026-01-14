@@ -2,11 +2,12 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Ddtk.Cli.Services;
+using Ddtk.Business.Services;
+using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using HtmlAgilityPack;
 
-namespace Ddtk.Cli.Helpers;
+namespace Ddtk.Business.Helpers;
 
 public static class WordDefinitionHelper
 {

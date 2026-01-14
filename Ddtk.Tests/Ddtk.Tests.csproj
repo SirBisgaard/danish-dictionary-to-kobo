@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ddtk.Business\Ddtk.Business.csproj" />
     <ProjectReference Include="..\Ddtk.Cli\Ddtk.Cli.csproj" />
   </ItemGroup>
 

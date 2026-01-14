@@ -1,7 +1,8 @@
-using Ddtk.Cli.Helpers;
-using Ddtk.Cli.Services;
+using Ddtk.Business.Helpers;
+using Ddtk.Business.Services;
+using Ddtk.Domain;
 
-namespace Ddtk.Cli;
+namespace Ddtk.Business;
 
 public class ProcessMediator : IAsyncDisposable
 {
