@@ -1,9 +1,9 @@
 ﻿using Ddtk.Cli;
 using Ddtk.Domain;
 using Microsoft.Extensions.Configuration;
-using Terminal.Gui.App;
-using Terminal.Gui.ViewBase;
-using Terminal.Gui.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var config = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
@@ -16,33 +16,33 @@ if (appSettings == null)
     throw new InvalidOperationException("AppSettings could not be loaded from configuration.");
 }
 
-// Terminal.Gui.Configuration.ConfigurationManager.RuntimeConfig = """{ "Theme": "Amber Phosphor" }""";
-Terminal.Gui.Configuration.ConfigurationManager.Enable(Terminal.Gui.Configuration.ConfigLocations.All);
 
-using IApplication app = Application.Create();
-app.Init();
+var host = Host.CreateDefaultBuilder()
+    .ConfigureServices((context, services) =>
+    {
+        // Config
+        services.AddSingleton(appSettings);
+        
+        // Services
+        services.AddTransient<TerminalOrchestrator>();
 
-using MainWindow window = new();
-app.Run(window);
+        // Windows
+        // services.AddTransient<ChatWindow>();
+        // services.AddTransient<LoginWindow>();
+        // services.AddTransient<LobbyWindow>();
 
-// try
-// {
-//     
-//
-//     await using var processMediator = new ProcessMediator(appSettings);
-//
-//     var skipWebScraping = false;
-//     if (args.Length > 0)
-//     {
-//         skipWebScraping = args.Contains("--skip-web-scraping");
-//     }
-//
-//     await processMediator.Run(skipWebScraping);
-// }
-// catch (Exception e)
-// {
-//     Console.WriteLine();
-//     Console.WriteLine();
-//     Console.WriteLine("-- Unexpected error occurred --");
-//     Console.WriteLine(e);
-// }
+        services.AddLogging(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddConsole();
+            }
+        );
+    })
+    .Build();
+
+using var tui = ActivatorUtilities.CreateInstance<TerminalOrchestrator>(host.Services);
+tui.InitApp();
+
+
