@@ -3,7 +3,7 @@ using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli;
+namespace Ddtk.Cli.Views;
 
 /// <summary>
 /// Main application window containing the primary UI content.

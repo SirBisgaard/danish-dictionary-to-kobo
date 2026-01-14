@@ -1,25 +1,24 @@
-using Ddtk.Domain;
+using Ddtk.Cli.Views;
 using Terminal.Gui.App;
 
 namespace Ddtk.Cli;
 
-public class TerminalOrchestrator(AppSettings appSettings) : IDisposable
+public class TerminalOrchestrator : IDisposable
 {
-    private IApplication? App = null;
+    private IApplication? app;
     
     public void InitApp()
     {
-        
         Terminal.Gui.Configuration.ConfigurationManager.RuntimeConfig = """{ "Theme": "Amber Phosphor" }""";
         Terminal.Gui.Configuration.ConfigurationManager.Enable(Terminal.Gui.Configuration.ConfigLocations.All);
 
-        App = Application.Create().Init();
+        app = Application.Create().Init();
         using var window = new MainWindow();
-        App.Run(window);
+        app.Run(window);
     }
     
     public void Dispose()
     {
-        App?.Dispose();
+        app?.Dispose();
     }
 }
