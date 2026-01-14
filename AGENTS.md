@@ -4,8 +4,9 @@ This document provides guidelines for AI coding agents working in this repositor
 
 ## Project Overview
 
-**Type:** .NET 10.0 Console Application (C#)  
-**Purpose:** Generate Danish dictionaries for Kobo e-readers by web scraping
+**Type:** .NET 10.0 TUI Application (C#)  
+**Purpose:** Generate Danish dictionaries for Kobo e-readers by web scraping  
+**UI Framework:** Terminal.Gui v2 with Amber Phosphor theme  
 **Architecture:** Service-oriented with mediator pattern  
 **Target Platform:** Linux x64 (but uses cross-platform .NET)
 
@@ -182,7 +183,7 @@ When implementing new tests:
 ### Error Handling
 - **Top-Level Try-Catch:** Catch unhandled exceptions in Program.cs
 - **Specific Exceptions:** Catch specific exceptions when possible
-- **Logging:** Log errors via LoggingService, not Console.WriteLine
+- **Logging:** Log errors via LoggingService or Terminal.Gui UI components
 - **Graceful Degradation:** Continue processing when non-critical errors occur
 - **Validation:** Validate configuration and inputs early (e.g., `appSettings == null` check)
 
@@ -253,6 +254,7 @@ Always validate configuration loaded successfully before use.
 
 ## Dependencies
 
+- **Terminal.Gui:** v2 TUI framework with Amber Phosphor theme
 - **HtmlAgilityPack:** HTML/XHTML parsing
 - **Microsoft.Extensions.Configuration:** Config management
 - **libmarisa.so:** Native marisa-trie library (included in runtimes/)

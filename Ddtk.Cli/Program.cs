@@ -1,34 +1,56 @@
 ﻿using Ddtk.Cli;
 using Microsoft.Extensions.Configuration;
+using Terminal.Gui.App;
+using Terminal.Gui.Configuration;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
+using ConfigurationManager = Microsoft.Extensions.Configuration.ConfigurationManager;
 
-try
+var config = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+    .Build();
+
+var appSettings = config.Get<AppSettings>();
+if (appSettings == null)
 {
-    var config = new ConfigurationBuilder()
-        .SetBasePath(AppContext.BaseDirectory)
-        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
-        .Build();
-
-    var appSettings = config.Get<AppSettings>();
-    if (appSettings == null)
-    {
-        throw new InvalidOperationException("AppSettings could not be loaded from configuration.");
-    }
-
-
-    await using var processMediator = new ProcessMediator(appSettings);
-
-    var skipWebScraping = false;
-    if (args.Length > 0)
-    {
-        skipWebScraping = args.Contains("--skip-web-scraping");
-    }
-
-    await processMediator.Run(skipWebScraping);
+    throw new InvalidOperationException("AppSettings could not be loaded from configuration.");
 }
-catch (Exception e)
+
+using IApplication app = Application.Create();
+app.Init();
+
+using Window window = new();
+window.Title = "Ddtk - Danish Dictionary to Kobo";
+
+Label label = new()
 {
-    Console.WriteLine();
-    Console.WriteLine();
-    Console.WriteLine("-- Unexpected error occurred --");
-    Console.WriteLine(e);
-}
+    Text = "Hello, Terminal.Gui v2!",
+    X = Pos.Center(),
+    Y = Pos.Center()
+};
+window.Add(label);
+
+app.Run(window);
+
+// try
+// {
+//     
+//
+//     await using var processMediator = new ProcessMediator(appSettings);
+//
+//     var skipWebScraping = false;
+//     if (args.Length > 0)
+//     {
+//         skipWebScraping = args.Contains("--skip-web-scraping");
+//     }
+//
+//     await processMediator.Run(skipWebScraping);
+// }
+// catch (Exception e)
+// {
+//     Console.WriteLine();
+//     Console.WriteLine();
+//     Console.WriteLine("-- Unexpected error occurred --");
+//     Console.WriteLine(e);
+// }

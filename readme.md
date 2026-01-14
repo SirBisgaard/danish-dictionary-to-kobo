@@ -1,6 +1,6 @@
 # Danish Dictionary to Kobo
 
-> A .NET console application that generates Kobo-compatible Danish dictionaries by web scraping, enabling native Danish word lookups on Kobo e-readers.
+> A .NET TUI application that generates Kobo-compatible Danish dictionaries by web scraping, enabling native Danish word lookups on Kobo e-readers with an intuitive terminal user interface.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
@@ -9,14 +9,16 @@
 
 ## 📖 About
 
-This project automates the creation of Danish dictionaries for Kobo e-readers. It scrapes Danish word definitions from online sources, processes the data, and generates a Kobo-compatible dictionary file (`dicthtml-da-da.zip`). Once installed on a Kobo device, users can look up Danish words directly while reading.
+This project automates the creation of Danish dictionaries for Kobo e-readers. It features a modern Terminal User Interface (TUI) built with Terminal.Gui v2 using the Amber Phosphor theme, providing an intuitive and visually appealing experience. The application scrapes Danish word definitions from online sources, processes the data, and generates a Kobo-compatible dictionary file (`dicthtml-da-da.zip`). Once installed on a Kobo device, users can look up Danish words directly while reading.
 
 **Key Features:**
+- **Modern TUI Interface**: Terminal.Gui v2 with Amber Phosphor theme for a sleek, easy-to-use interface
 - **Epub Word Extraction**: Extract word lists from Epub files for targeted dictionary creation
 - **Automated Web Scraping**: Retrieve word definitions and grammatical information
 - **Kobo Format Generation**: Produces ready-to-use dictionary files in Kobo's proprietary format
 - **Efficient Storage**: Uses marisa-trie for compact dictionary storage
 - **Backup System**: Maintains JSON backup of scraped definitions for recovery
+- **Smart Progress Tracking**: Real-time progress updates and status information in the TUI
 
 ## ⚠️ Disclaimer
 
@@ -28,6 +30,7 @@ This project is provided **for educational purposes only**. It is not affiliated
 |------------|---------|---------|
 | .NET | 10.0 | Runtime and SDK |
 | C# | 13+ | Primary language |
+| Terminal.Gui | v2 | TUI framework with Amber Phosphor theme |
 | HtmlAgilityPack | Latest | HTML/XHTML parsing |
 | marisa-trie | Latest | Efficient trie data structure |
 | C++ Build Tools | - | Native library compilation |
@@ -111,16 +114,26 @@ danish-dictionary-to-kobo/
    # Or run the published binary
    ./Ddtk.Cli/bin/Release/net10.0/linux-x64/publish/Ddtk.Cli
    ```
+   
+   The application will launch with the Terminal.Gui interface using the Amber Phosphor theme.
 
 ### Command-Line Options
 
+The application features an interactive TUI interface, but also supports command-line options:
+
 ```bash
-# Generate dictionary with web scraping (default)
+# Generate dictionary with interactive TUI (default)
 ./Ddtk.Cli
 
 # Skip web scraping (use existing JSON backup)
 ./Ddtk.Cli --skip-web-scraping
 ```
+
+**TUI Navigation:**
+- Use arrow keys to navigate menus and options
+- Press Enter to confirm selections
+- Press Esc to cancel or go back
+- Follow on-screen instructions for additional shortcuts
 
 ## 📚 Using the Epub Word Extractor
 
@@ -207,9 +220,10 @@ The application uses a service-oriented architecture with the following key comp
 
 - **ProcessMediator**: Orchestrates the entire dictionary generation workflow
 - **FileSystemService**: Handles file I/O operations
-- **LoggingService**: Provides logging with progress tracking
+- **LoggingService**: Provides logging with progress tracking integrated into the TUI
 - **WebScrapingService**: Scrapes word definitions from source
 - **KoboGeneratorService**: Generates Kobo dictionary format
+- **Terminal.Gui UI**: Provides modern TUI interface with Amber Phosphor theme
 
 ### Adding New Features
 
@@ -296,6 +310,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- [Terminal.Gui](https://github.com/gui-cs/Terminal.Gui) - Modern TUI framework with theme support
 - [HtmlAgilityPack](https://html-agility-pack.net/) - HTML parsing and web scraping
 - [marisa-trie](https://github.com/s-yata/marisa-trie) - Efficient trie data structures
 - [.NET Foundation](https://dotnet.microsoft.com/) - Runtime and tooling
