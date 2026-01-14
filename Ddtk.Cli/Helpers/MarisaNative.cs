@@ -33,6 +33,7 @@ public static class MarisaNative
         NativeLibrary.Load(path);
     }
 
+    // Builder functions
     [DllImport("marisa", EntryPoint = "marisa_builder_new", CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr CreateBuilder();
 
@@ -45,9 +46,35 @@ public static class MarisaNative
     [DllImport("marisa", EntryPoint = "marisa_builder_destroy", CallingConvention = CallingConvention.Cdecl)]
     public static extern void DestroyBuilder(IntPtr builder);
 
+    // Trie functions
     [DllImport("marisa", EntryPoint = "marisa_trie_save", CallingConvention = CallingConvention.Cdecl)]
     public static extern void SaveTrie(IntPtr trie, [MarshalAs(UnmanagedType.LPStr)] string path);
 
+    [DllImport("marisa", EntryPoint = "marisa_trie_load", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr LoadTrie([MarshalAs(UnmanagedType.LPStr)] string path);
+
+    [DllImport("marisa", EntryPoint = "marisa_trie_num_keys", CallingConvention = CallingConvention.Cdecl)]
+    public static extern UIntPtr GetNumKeys(IntPtr trie);
+
+    [DllImport("marisa", EntryPoint = "marisa_trie_lookup", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int LookupKey(IntPtr trie, IntPtr agent);
+
+    [DllImport("marisa", EntryPoint = "marisa_trie_reverse_lookup", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int ReverseLookup(IntPtr trie, IntPtr agent, UIntPtr keyId);
+
     [DllImport("marisa", EntryPoint = "marisa_trie_destroy", CallingConvention = CallingConvention.Cdecl)]
     public static extern void DestroyTrie(IntPtr trie);
+
+    // Agent functions
+    [DllImport("marisa", EntryPoint = "marisa_agent_new", CallingConvention = CallingConvention.Cdecl)]
+    public static extern IntPtr CreateAgent();
+
+    [DllImport("marisa", EntryPoint = "marisa_agent_set_query", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void SetAgentQuery(IntPtr agent, [In] byte[] key, int length);
+
+    [DllImport("marisa", EntryPoint = "marisa_agent_get_key", CallingConvention = CallingConvention.Cdecl)]
+    public static extern int GetAgentKey(IntPtr agent, [Out] byte[] buffer, int bufferSize, out int outLength);
+
+    [DllImport("marisa", EntryPoint = "marisa_agent_destroy", CallingConvention = CallingConvention.Cdecl)]
+    public static extern void DestroyAgent(IntPtr agent);
 }

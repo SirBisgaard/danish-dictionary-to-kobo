@@ -268,4 +268,434 @@ public class MarisaNativeTests : IDisposable
         // Cleanup
         MarisaNative.DestroyBuilder(builderPtr);
     }
+
+    [Fact]
+    public void LoadTrie_ShouldReturnValidPointer_WhenFileExists()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var key = "loadtest"u8.ToArray();
+        MarisaNative.PushIntoBuilder(builderPtr, key, key.Length);
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var savePath = Path.Combine(testDirectory, "load-test-trie.bin");
+        MarisaNative.SaveTrie(triePtr, savePath);
+        MarisaNative.DestroyTrie(triePtr);
+
+        // Act
+        var loadedTriePtr = MarisaNative.LoadTrie(savePath);
+
+        // Assert
+        loadedTriePtr.Should().NotBe(IntPtr.Zero, "loaded trie pointer should be valid");
+
+        // Cleanup
+        MarisaNative.DestroyTrie(loadedTriePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LoadTrie_ShouldReturnZero_WhenFileDoesNotExist()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var nonExistentPath = Path.Combine(testDirectory, "non-existent-trie.bin");
+
+        // Act
+        var triePtr = MarisaNative.LoadTrie(nonExistentPath);
+
+        // Assert
+        triePtr.Should().Be(IntPtr.Zero, "loading non-existent file should return null pointer");
+    }
+
+    [Fact]
+    public void GetNumKeys_ShouldReturnCorrectCount_WhenTrieHasKeys()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry", "date", "elderberry" };
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+
+        // Act
+        var numKeys = MarisaNative.GetNumKeys(triePtr);
+
+        // Assert
+        ((int)numKeys).Should().Be(keys.Length, "trie should contain exactly the number of keys added");
+
+        // Cleanup
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void GetNumKeys_ShouldReturnZero_WhenTrieIsEmpty()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+
+        // Act
+        var numKeys = MarisaNative.GetNumKeys(triePtr);
+
+        // Assert
+        ((int)numKeys).Should().Be(0, "empty trie should have zero keys");
+
+        // Cleanup
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void CreateAgent_ShouldReturnValidPointer_WhenCalled()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+
+        // Act
+        var agentPtr = MarisaNative.CreateAgent();
+
+        // Assert
+        agentPtr.Should().NotBe(IntPtr.Zero, "agent pointer should be valid");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+    }
+
+    [Fact]
+    public void DestroyAgent_ShouldNotThrow_WhenCalledWithValidPointer()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var agentPtr = MarisaNative.CreateAgent();
+
+        // Act
+        Action act = () => MarisaNative.DestroyAgent(agentPtr);
+
+        // Assert
+        act.Should().NotThrow("destroying a valid agent should succeed");
+    }
+
+    [Fact]
+    public void LookupKey_ShouldReturnOne_WhenKeyExists()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry" };
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var searchKey = "banana"u8.ToArray();
+
+        // Act
+        MarisaNative.SetAgentQuery(agentPtr, searchKey, searchKey.Length);
+        var result = MarisaNative.LookupKey(triePtr, agentPtr);
+
+        // Assert
+        result.Should().Be(1, "lookup should return 1 when key exists in trie");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LookupKey_ShouldReturnZero_WhenKeyDoesNotExist()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry" };
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var searchKey = "orange"u8.ToArray();
+
+        // Act
+        MarisaNative.SetAgentQuery(agentPtr, searchKey, searchKey.Length);
+        var result = MarisaNative.LookupKey(triePtr, agentPtr);
+
+        // Assert
+        result.Should().Be(0, "lookup should return 0 when key does not exist in trie");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LookupKey_ShouldWorkWithDanishCharacters_WhenKeyExists()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var danishWords = new[] { "æble", "øl", "år", "bøtte" };
+        
+        foreach (var word in danishWords)
+        {
+            var bytes = Encoding.UTF8.GetBytes(word);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var searchKey = Encoding.UTF8.GetBytes("øl");
+
+        // Act
+        MarisaNative.SetAgentQuery(agentPtr, searchKey, searchKey.Length);
+        var result = MarisaNative.LookupKey(triePtr, agentPtr);
+
+        // Assert
+        result.Should().Be(1, "lookup should find Danish words with special characters");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void ReverseLookup_ShouldReturnSuccess_WhenKeyIdIsValid()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry" };
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+
+        // Act
+        var result = MarisaNative.ReverseLookup(triePtr, agentPtr, UIntPtr.Zero);
+
+        // Assert
+        result.Should().Be(0, "reverse lookup should return 0 on success");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void GetAgentKey_ShouldRetrieveKey_AfterReverseLookup()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry" };
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var buffer = new byte[1024];
+
+        // Act
+        MarisaNative.ReverseLookup(triePtr, agentPtr, new UIntPtr(1)); // Get second key (banana)
+        var result = MarisaNative.GetAgentKey(agentPtr, buffer, buffer.Length, out var length);
+        var retrievedKey = Encoding.UTF8.GetString(buffer, 0, length);
+
+        // Assert
+        result.Should().Be(0, "get agent key should return 0 on success");
+        retrievedKey.Should().Be("banana", "retrieved key should match the key at index 1");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void GetAgentKey_ShouldHandleDanishCharacters_AfterReverseLookup()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var danishWords = new[] { "æble", "øl", "år" };
+        
+        foreach (var word in danishWords)
+        {
+            var bytes = Encoding.UTF8.GetBytes(word);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var buffer = new byte[1024];
+
+        // Act - retrieve all keys and check they're all valid Danish words
+        var retrievedKeys = new List<string>();
+        var numKeys = (int)MarisaNative.GetNumKeys(triePtr);
+        for (int i = 0; i < numKeys; i++)
+        {
+            MarisaNative.ReverseLookup(triePtr, agentPtr, new UIntPtr((uint)i));
+            MarisaNative.GetAgentKey(agentPtr, buffer, buffer.Length, out var length);
+            var key = Encoding.UTF8.GetString(buffer, 0, length);
+            retrievedKeys.Add(key);
+        }
+
+        // Assert
+        retrievedKeys.Should().BeEquivalentTo(danishWords, "all Danish words with UTF-8 characters should be retrievable");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(triePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LoadTrie_AndLookup_ShouldFindKeys_AfterSavingAndLoading()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var keys = new[] { "apple", "banana", "cherry", "date" };
+        var savePath = Path.Combine(testDirectory, "lookup-test-trie.bin");
+        
+        foreach (var key in keys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        MarisaNative.SaveTrie(triePtr, savePath);
+        MarisaNative.DestroyTrie(triePtr);
+
+        // Act - Load trie and perform lookup
+        var loadedTriePtr = MarisaNative.LoadTrie(savePath);
+        var agentPtr = MarisaNative.CreateAgent();
+        var searchKey = "cherry"u8.ToArray();
+        MarisaNative.SetAgentQuery(agentPtr, searchKey, searchKey.Length);
+        var lookupResult = MarisaNative.LookupKey(loadedTriePtr, agentPtr);
+
+        // Assert
+        lookupResult.Should().Be(1, "lookup should find key in loaded trie");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(loadedTriePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LoadTrie_AndEnumerateAllKeys_ShouldRetrieveAllStoredKeys()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var originalKeys = new[] { "apple", "banana", "cherry", "date", "elderberry" };
+        var savePath = Path.Combine(testDirectory, "enumerate-test-trie.bin");
+        
+        foreach (var key in originalKeys)
+        {
+            var bytes = Encoding.UTF8.GetBytes(key);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        MarisaNative.SaveTrie(triePtr, savePath);
+        MarisaNative.DestroyTrie(triePtr);
+
+        // Act - Load trie and extract all keys
+        var loadedTriePtr = MarisaNative.LoadTrie(savePath);
+        var numKeys = (int)MarisaNative.GetNumKeys(loadedTriePtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var buffer = new byte[1024];
+        var retrievedKeys = new List<string>();
+
+        for (int i = 0; i < numKeys; i++)
+        {
+            MarisaNative.ReverseLookup(loadedTriePtr, agentPtr, new UIntPtr((uint)i));
+            MarisaNative.GetAgentKey(agentPtr, buffer, buffer.Length, out var length);
+            var key = Encoding.UTF8.GetString(buffer, 0, length);
+            retrievedKeys.Add(key);
+        }
+
+        // Assert
+        retrievedKeys.Should().HaveCount(originalKeys.Length, "all keys should be retrieved");
+        retrievedKeys.Should().BeEquivalentTo(originalKeys, "retrieved keys should match original keys");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(loadedTriePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
+
+    [Fact]
+    public void LoadTrie_AndEnumerateAllKeys_ShouldWorkWithDanishWords()
+    {
+        // Arrange
+        MarisaNative.BindMarisa();
+        var builderPtr = MarisaNative.CreateBuilder();
+        var danishWords = new[] { "æble", "øl", "år", "bøtte", "grød", "hætte" };
+        var savePath = Path.Combine(testDirectory, "danish-enumerate-test-trie.bin");
+        
+        foreach (var word in danishWords)
+        {
+            var bytes = Encoding.UTF8.GetBytes(word);
+            MarisaNative.PushIntoBuilder(builderPtr, bytes, bytes.Length);
+        }
+
+        var triePtr = MarisaNative.BuildBuilder(builderPtr);
+        MarisaNative.SaveTrie(triePtr, savePath);
+        MarisaNative.DestroyTrie(triePtr);
+
+        // Act - Load trie and extract all keys
+        var loadedTriePtr = MarisaNative.LoadTrie(savePath);
+        var numKeys = (int)MarisaNative.GetNumKeys(loadedTriePtr);
+        var agentPtr = MarisaNative.CreateAgent();
+        var buffer = new byte[1024];
+        var retrievedWords = new List<string>();
+
+        for (int i = 0; i < numKeys; i++)
+        {
+            MarisaNative.ReverseLookup(loadedTriePtr, agentPtr, new UIntPtr((uint)i));
+            MarisaNative.GetAgentKey(agentPtr, buffer, buffer.Length, out var length);
+            var word = Encoding.UTF8.GetString(buffer, 0, length);
+            retrievedWords.Add(word);
+        }
+
+        // Assert
+        retrievedWords.Should().HaveCount(danishWords.Length, "all Danish words should be retrieved");
+        retrievedWords.Should().BeEquivalentTo(danishWords, "retrieved Danish words should match original");
+
+        // Cleanup
+        MarisaNative.DestroyAgent(agentPtr);
+        MarisaNative.DestroyTrie(loadedTriePtr);
+        MarisaNative.DestroyBuilder(builderPtr);
+    }
 }
