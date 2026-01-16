@@ -16,7 +16,6 @@ if (appSettings == null)
     throw new InvalidOperationException("AppSettings could not be loaded from configuration.");
 }
 
-
 var host = Host.CreateDefaultBuilder()
     .ConfigureServices((context, services) =>
     {
@@ -41,5 +40,3 @@ var host = Host.CreateDefaultBuilder()
 
 using var tui = ActivatorUtilities.CreateInstance<TerminalOrchestrator>(host.Services);
 tui.InitApp();
-
-

@@ -32,6 +32,9 @@ public class TerminalOrchestrator : IDisposable
             case WindowChange.StatusWindow:
                 w = new StatusWindow(mainMenuBar, mainStatusBar);
                 break;
+            case WindowChange.ConfigWindow:
+                w = new ConfigWindow(mainMenuBar, mainStatusBar);
+                break;
             case WindowChange.MainWindow:
             default:
                 w = new MainWindow(mainMenuBar, mainStatusBar);

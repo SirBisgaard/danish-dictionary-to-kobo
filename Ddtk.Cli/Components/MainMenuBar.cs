@@ -10,6 +10,7 @@ public class MainMenuBar : MenuBar
         // Create global menu bar at the top (Y = 0)
         var menuItemFile = new MenuBarItem("_File", [
             new MenuItem("_Status", "- Status overview", () => changeWindow(WindowChange.StatusWindow)),
+            new MenuItem("_Config", "- Configuration", () => changeWindow(WindowChange.ConfigWindow)),
             new MenuItem("_Quit", "- Exit application", () => App?.RequestStop())
         ]);
 
