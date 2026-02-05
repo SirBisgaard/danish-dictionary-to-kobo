@@ -45,7 +45,7 @@ public class TerminalOrchestrator : IDisposable
                 w = new PreviewWordDefinitionWindow(mainMenuBar, mainStatusBar, this.appSettings);
                 break;
             case WindowChange.EpubWordExtractionWindow:
-                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar);
+                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar, this.appSettings);
                 break;
             case WindowChange.SeededWordsWindow:
                 w = new SeededWordsWindow(mainMenuBar, mainStatusBar, this.appSettings);

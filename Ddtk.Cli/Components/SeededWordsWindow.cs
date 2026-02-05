@@ -163,7 +163,7 @@ public class SeededWordsWindow : Window
                 var alreadyProcessed = this.allWords.Count(w => processedSet.Contains(w));
                 var remaining = this.allWords.Count - alreadyProcessed;
                 
-                Terminal.Gui.App.Application.Invoke(() =>
+                App?.Invoke(() =>
                 {
                     FilterWords();
                     UpdateStats(this.allWords.Count, alreadyProcessed, remaining);
@@ -173,7 +173,7 @@ public class SeededWordsWindow : Window
         }
         catch (Exception ex)
         {
-            Terminal.Gui.App.Application.Invoke(() =>
+            App?.Invoke(() =>
             {
                 this.statusLabel.Text = $"Error loading words: {ex.Message}";
             });
