@@ -34,7 +34,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-    <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4807" />
+    <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4990" />
   </ItemGroup>
   
   <ItemGroup>
