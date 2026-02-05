@@ -9,8 +9,14 @@ public class MainMenuBar : MenuBar
     {
         // Create global menu bar at the top (Y = 0)
         var menuItemFile = new MenuBarItem("_File", [
-            new MenuItem("_Status", "- Status overview", () => changeWindow(WindowChange.StatusWindow)),
-            new MenuItem("_Config", "- Configuration", () => changeWindow(WindowChange.ConfigWindow)),
+            new MenuItem("_Dashboard", "- Main dashboard", () => changeWindow(WindowChange.MainWindow)),
+            new MenuItem("Preview _Definition", "- Preview Kobo HTML formatting", () => changeWindow(WindowChange.PreviewWordDefinitionWindow)),
+            new MenuItem("_EPUB Extractor", "- Extract words from EPUB files", () => changeWindow(WindowChange.EpubWordExtractionWindow)),
+            new MenuItem("_Seeded Words", "- Manage seeded words list", () => changeWindow(WindowChange.SeededWordsWindow)),
+            new MenuItem("_Web Scraping", "- Scrape word definitions from web", () => changeWindow(WindowChange.WebScrapingWindow)),
+            new MenuItem("_Build Dictionary", "- Build Kobo dictionary ZIP", () => changeWindow(WindowChange.DictionaryBuildWindow)),
+            null!, // Separator
+            new MenuItem("C_onfig", "- Configuration", () => changeWindow(WindowChange.ConfigWindow)),
             new MenuItem("_Quit", "- Exit application", () => App?.RequestStop())
         ]);
 

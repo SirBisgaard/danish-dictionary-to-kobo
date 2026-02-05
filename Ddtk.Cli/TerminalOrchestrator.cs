@@ -1,4 +1,5 @@
 using Ddtk.Cli.Components;
+using Ddtk.Domain;
 using Terminal.Gui.App;
 using Terminal.Gui.Views;
 
@@ -6,7 +7,13 @@ namespace Ddtk.Cli;
 
 public class TerminalOrchestrator : IDisposable
 {
+    private readonly AppSettings appSettings;
     private IApplication? app;
+
+    public TerminalOrchestrator(AppSettings appSettings)
+    {
+        this.appSettings = appSettings;
+    }
     
     public void InitApp()
     {
@@ -33,6 +40,21 @@ public class TerminalOrchestrator : IDisposable
                 break;
             case WindowChange.ConfigWindow:
                 w = new ConfigWindow(mainMenuBar, mainStatusBar);
+                break;
+            case WindowChange.PreviewWordDefinitionWindow:
+                w = new PreviewWordDefinitionWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                break;
+            case WindowChange.EpubWordExtractionWindow:
+                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar);
+                break;
+            case WindowChange.SeededWordsWindow:
+                w = new SeededWordsWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                break;
+            case WindowChange.WebScrapingWindow:
+                w = new WebScrapingWindow(mainMenuBar, mainStatusBar);
+                break;
+            case WindowChange.DictionaryBuildWindow:
+                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar);
                 break;
             case WindowChange.MainWindow:
             default:

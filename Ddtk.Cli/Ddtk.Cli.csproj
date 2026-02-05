@@ -38,6 +38,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\Ddtk.Business\Ddtk.Business.csproj" />
     <ProjectReference Include="..\Ddtk.Domain\Ddtk.Domain.csproj" />
   </ItemGroup>
 </Project>

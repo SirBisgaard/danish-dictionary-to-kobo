@@ -4,5 +4,10 @@ public enum WindowChange
 {
     MainWindow,
     ConfigWindow,
-    StatusWindow
+    StatusWindow,
+    PreviewWordDefinitionWindow,
+    EpubWordExtractionWindow,
+    SeededWordsWindow,
+    WebScrapingWindow,
+    DictionaryBuildWindow
 }
