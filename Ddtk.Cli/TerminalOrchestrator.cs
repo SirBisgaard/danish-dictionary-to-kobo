@@ -51,14 +51,14 @@ public class TerminalOrchestrator : IDisposable
                 w = new SeededWordsWindow(mainMenuBar, mainStatusBar, this.appSettings);
                 break;
             case WindowChange.WebScrapingWindow:
-                w = new WebScrapingWindow(mainMenuBar, mainStatusBar);
+                w = new WebScrapingWindow(mainMenuBar, mainStatusBar, this.appSettings);
                 break;
             case WindowChange.DictionaryBuildWindow:
-                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar);
+                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar, this.appSettings);
                 break;
             case WindowChange.MainWindow:
             default:
-                w = new MainWindow(mainMenuBar, mainStatusBar);
+                w = new MainWindow(mainMenuBar, mainStatusBar, this.appSettings, ChangeWindow);
                 break;
         }
 
