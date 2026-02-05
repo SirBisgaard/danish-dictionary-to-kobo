@@ -13,17 +13,47 @@ This document provides guidelines for AI coding agents working in this repositor
 ## Directory Structure
 
 ```
-Ddtk.Cli/                   # Main dictionary generation CLI
-├── Helpers/                # Utility classes and extensions
-├── Models/                 # Data models (WordDefinition, DefinitionExplanation)
-├── Services/               # Business logic (FileSystemService, LoggingService, etc.)
+Ddtk.Cli/                   # Main dictionary generation TUI application
+├── Components/             # Terminal.Gui UI windows and components
+│   ├── MainWindow.cs       # Dashboard with overview and statistics
+│   ├── MainMenuBar.cs      # Top menu bar navigation
+│   ├── MainStatusBar.cs    # Bottom status bar
+│   ├── WindowChange.cs     # Window navigation enum
+│   ├── SeededWordsWindow.cs           # View/manage seeding words list
+│   ├── EpubWordExtractionWindow.cs    # Extract words from EPUB files
+│   ├── WebScrapingWindow.cs           # Web scraping orchestration
+│   ├── DictionaryBuildWindow.cs       # Dictionary building pipeline
+│   ├── PreviewWordDefinitionWindow.cs # Preview dictionary HTML
+│   ├── StatusWindow.cs     # Status/about window
+│   └── ConfigWindow.cs     # Configuration editor
 ├── runtimes/linux-x64/native/  # Native library (libmarisa.so)
 ├── Program.cs              # Entry point
-├── ProcessMediator.cs      # Main orchestrator
-├── AppSettings.cs          # Configuration model
+├── TerminalOrchestrator.cs # TUI window management and navigation
 └── appsettings.json        # Configuration file
 
-Ddtk.EpubWordExtractor.Cli/ # Epub word extraction tool
+Ddtk.Domain/                # Data models and configuration
+├── Models/                 # Domain models
+│   ├── WordDefinition.cs   # Dictionary word definition model
+│   ├── DefinitionExplanation.cs  # Definition explanation part
+│   ├── ScrapingProgress.cs       # Web scraping progress tracking
+│   ├── ProcessingProgress.cs     # Word processing progress tracking
+│   ├── BuildProgress.cs          # Dictionary build progress tracking
+│   └── EpubExtractionProgress.cs # EPUB extraction progress tracking
+├── AppSettings.cs          # Configuration model
+└── ScrapingOptions.cs      # Runtime scraping configuration
+
+Ddtk.Business/              # Business logic and services
+├── Services/               # Core services
+│   ├── FileSystemService.cs       # File I/O operations
+│   ├── LoggingService.cs          # Logging to file
+│   ├── BackupService.cs           # JSON backup during scraping
+│   ├── WordDefinitionWebScraperService.cs  # Web scraping logic
+│   └── EpubWordExtractorService.cs # EPUB word extraction logic
+├── Helpers/                # Helper classes
+│   └── WordDefinitionHelper.cs  # Word definition processing utilities
+└── ProcessMediator.cs      # Main orchestrator with step-by-step methods
+
+Ddtk.EpubWordExtractor.Cli/ # Standalone EPUB word extraction tool (CLI)
 Ddtk.Tests/                 # Test project (xUnit + FluentAssertions)
 c-shim/                     # C++ interop shim for marisa-trie
 ```
@@ -263,10 +293,165 @@ Always validate configuration loaded successfully before use.
 
 - **Single-File Deployment:** Application publishes as single executable
 - **Native Library:** `libmarisa.so` embedded via `IncludeNativeLibrariesForSelfExtract`
-- **Tests Available:** Integration tests for native library in `Ddtk.Tests/` project
+- **Tests Available:** Integration tests for native library in `Ddtk.Tests/` project (27 tests passing)
 - **No Linter:** Follow IDE (Rider) suggestions and C# conventions
 - **Web Scraping:** Respects source copyright (included in dictionary metadata)
 - **Backup System:** JSON backup created during scraping for recovery
+
+## TUI Application Structure
+
+The application uses Terminal.Gui v2 with a multi-window architecture:
+
+### Windows and Navigation
+
+1. **MainWindow** (Dashboard) - `Ddtk.Cli/Components/MainWindow.cs`
+   - Landing page with comprehensive overview
+   - Shows pipeline status, statistics, and file information
+   - Quick action buttons for common workflows
+   - Auto-loads on application start
+
+2. **SeededWordsWindow** - `Ddtk.Cli/Components/SeededWordsWindow.cs`
+   - View and manage seeding words list
+   - Search/filter functionality
+   - Statistics (total, processed, remaining)
+   - Export to timestamped file
+
+3. **EpubWordExtractionWindow** - `Ddtk.Cli/Components/EpubWordExtractionWindow.cs`
+   - Extract words from EPUB files
+   - Multi-file and folder selection
+   - Real-time progress tracking
+   - Merge with existing seeding words
+   - View and export extracted words
+
+4. **WebScrapingWindow** - `Ddtk.Cli/Components/WebScrapingWindow.cs`
+   - Web scraping orchestration from ordnet.dk
+   - Configure worker count
+   - Real-time progress bar and statistics
+   - Activity log with scrolling
+   - Start/Stop controls with cancellation
+
+5. **DictionaryBuildWindow** - `Ddtk.Cli/Components/DictionaryBuildWindow.cs`
+   - Three-step dictionary building pipeline:
+     1. Load word definitions from JSON
+     2. Process definitions (merge, clean, sort)
+     3. Build final Kobo ZIP file
+   - Progress tracking for each step
+   - "Build All" button for one-click pipeline
+   - View output file information
+
+6. **PreviewWordDefinitionWindow** - `Ddtk.Cli/Components/PreviewWordDefinitionWindow.cs`
+   - Preview dictionary HTML rendering
+   - Split view (raw HTML + human-readable)
+   - Test with any word
+   - Save to test HTML file
+
+7. **StatusWindow** - `Ddtk.Cli/Components/StatusWindow.cs`
+   - About/status information
+
+8. **ConfigWindow** - `Ddtk.Cli/Components/ConfigWindow.cs`
+   - Configuration editor
+
+### Window Management
+
+- **TerminalOrchestrator** (`Ddtk.Cli/TerminalOrchestrator.cs`) - Manages window lifecycle
+- **WindowChange enum** - Defines available windows for navigation
+- **Navigation:** Menu bar (Alt+F) or quick action buttons on dashboard
+
+### Dashboard Overview (MainWindow)
+
+The dashboard provides a comprehensive overview with 4 sections:
+
+#### 1. Pipeline Status
+Visual workflow showing current state:
+```
+[1. Extract] ✓ Ready → [2. Scrape] ⚠ 1,234/5,000 (24.7%) → [3. Process] ✓ Ready → [4. Build] ○ Pending
+```
+- ✓ = Complete/Ready
+- ⚠ = In Progress (with counts and percentage)
+- ○ = Pending/Not Started
+- ✗ = Error
+
+#### 2. Statistics (3 panels)
+- **Seeding Words:** Total, scraped, remaining, progress percentage
+- **Scraped Data:** Definition count, file size, time since last update
+- **Dictionary Build:** Build status, ZIP file size, last build date/time
+
+#### 3. Quick Actions
+Five navigation buttons:
+- Refresh Data
+- Extract Words (→ EpubWordExtractionWindow)
+- View Seeded Words (→ SeededWordsWindow)
+- Start Scraping (→ WebScrapingWindow)
+- Build Dictionary (→ DictionaryBuildWindow)
+
+#### 4. File Status
+Shows existence and size of key files:
+- ✓ extracted_words.txt (125 KB)
+- ✓ dicthtml-da-da.json (2.4 MB)
+- ✗ dicthtml-da-da.zip (not found)
+
+### Progress Reporting Pattern
+
+All long-running operations use `IProgress<T>` for UI updates:
+
+```csharp
+var progress = new Progress<ScrapingProgress>(p =>
+{
+    App?.Invoke(() =>
+    {
+        // Update UI on main thread
+        progressBar.Fraction = p.PercentComplete / 100.0f;
+        statusLabel.Text = p.Status;
+    });
+});
+
+await mediator.RunScraping(seedingWords, options, progress, cancellationToken);
+```
+
+Progress models:
+- `ScrapingProgress` - Web scraping (words scraped, queue size, elapsed time)
+- `ProcessingProgress` - Word processing (processed count, total count)
+- `BuildProgress` - ZIP building (current prefix, total prefixes)
+- `EpubExtractionProgress` - EPUB extraction (files processed, words extracted)
+
+### Terminal.Gui v2 API Patterns
+
+- **UI Thread Updates:** Use `App?.Invoke(() => { })` for all UI updates from background threads
+- **Dialogs:** Use `App?.Run(dialog)` to show modal dialogs
+- **Layout:** Use `Dim.Percent()`, `Pos.Right()`, `Pos.Bottom()` for positioning
+- **Collections:** Use `ObservableCollection<T>` with `ListView.SetSource<T>()`
+- **Dispose Pattern:** Implement `IAsyncDisposable` for services
+
+### ProcessMediator Step-by-Step Methods
+
+The `ProcessMediator` class (`Ddtk.Business/ProcessMediator.cs`) provides granular methods for TUI:
+
+```csharp
+// Data loading
+Task<string[]> LoadSeedingWords()
+Task<List<WordDefinition>> LoadWordDefinitionsJson()
+Task<int> GetRemainingWordsToScrape()
+
+// Pipeline steps with progress reporting
+Task<List<WordDefinition>> RunScraping(string[] seedingWords, ScrapingOptions options, 
+    IProgress<ScrapingProgress>? progress, CancellationToken cancellationToken)
+Task<List<WordDefinition>> RunProcessing(List<WordDefinition> definitions, 
+    IProgress<ProcessingProgress>? progress)
+Task RunBuild(List<WordDefinition> definitions, 
+    IProgress<BuildProgress>? progress)
+```
+
+Original monolithic `Run()` method kept for CLI backward compatibility.
+
+## Complete Workflow
+
+Users can now:
+1. **Extract words** from EPUB files → Save to seeding words (`extracted_words.txt`)
+2. **View seeded words** → See statistics, search, and export
+3. **Scrape definitions** from ordnet.dk → Save to JSON (`dicthtml-da-da.json`)
+4. **Build dictionary** → Process JSON and create Kobo ZIP (`dicthtml-da-da.zip`)
+5. **Preview definitions** → Test HTML rendering before deployment
+6. **View dashboard** → Monitor progress and access all features
 
 ## When Making Changes
 
