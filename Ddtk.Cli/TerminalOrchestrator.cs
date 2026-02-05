@@ -1,5 +1,4 @@
 using Ddtk.Cli.Components;
-using Microsoft.Extensions.DependencyInjection;
 using Terminal.Gui.App;
 using Terminal.Gui.Views;
 
