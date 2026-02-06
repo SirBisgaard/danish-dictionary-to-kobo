@@ -362,6 +362,13 @@ public class DictionaryBuildWindow : Window
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {this.processedDefinitions.Count:N0} word definitions");
                     this.statusLabel.Text = $"Processing complete! {this.processedDefinitions.Count:N0} definitions ready. Click 'Start Build'";
                     this.startBuildButton.Enabled = true;
+                    
+                    NotificationHelper.ShowSuccess(
+                        "Processing Complete",
+                        $"Successfully processed word definitions.\n\n" +
+                        $"• Processed: {this.processedDefinitions.Count:N0} definitions\n" +
+                        $"• Ready to build Kobo dictionary",
+                        App);
                 });
             }
         }
@@ -371,6 +378,11 @@ public class DictionaryBuildWindow : Window
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error during processing: {ex.Message}");
                 this.statusLabel.Text = $"Error: {ex.Message}";
+                
+                NotificationHelper.ShowError(
+                    "Processing Failed",
+                    $"Failed to process word definitions:\n\n{ex.Message}",
+                    App);
             });
         }
         finally
@@ -419,6 +431,14 @@ public class DictionaryBuildWindow : Window
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Output file: {outputFileName}");
                     this.statusLabel.Text = $"Build complete! Dictionary saved to {outputFileName}";
                     this.viewOutputButton.Enabled = true;
+                    
+                    NotificationHelper.ShowSuccess(
+                        "Dictionary Build Complete",
+                        $"Successfully built Kobo dictionary!\n\n" +
+                        $"• Output file: {outputFileName}\n" +
+                        $"• Words included: {this.processedDefinitions.Count:N0}\n\n" +
+                        $"Copy the ZIP file to your Kobo e-reader's '.kobo/dict' folder.",
+                        App);
                 });
             }
         }
@@ -428,6 +448,11 @@ public class DictionaryBuildWindow : Window
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error during build: {ex.Message}");
                 this.statusLabel.Text = $"Error: {ex.Message}";
+                
+                NotificationHelper.ShowError(
+                    "Build Failed",
+                    $"Failed to build Kobo dictionary:\n\n{ex.Message}",
+                    App);
             });
         }
         finally
@@ -550,6 +575,15 @@ public class DictionaryBuildWindow : Window
                         this.viewOutputButton.Enabled = true;
                         this.startProcessingButton.Enabled = true;
                         this.startBuildButton.Enabled = true;
+                        
+                        NotificationHelper.ShowSuccess(
+                            "Full Pipeline Complete",
+                            $"Successfully completed all build steps!\n\n" +
+                            $"• Loaded: {this.loadedDefinitions.Count:N0} definitions\n" +
+                            $"• Processed: {this.processedDefinitions.Count:N0} definitions\n" +
+                            $"• Output: {outputFileName}\n\n" +
+                            $"Your Kobo dictionary is ready! Copy the ZIP file to your e-reader's '.kobo/dict' folder.",
+                            App);
                     });
                 }
             }

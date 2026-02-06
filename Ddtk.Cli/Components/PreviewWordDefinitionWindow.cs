@@ -171,6 +171,10 @@ public class PreviewWordDefinitionWindow : Window
             if (string.IsNullOrEmpty(html))
             {
                 this.statusLabel.Text = "Error: No HTML to save";
+                NotificationHelper.ShowWarning(
+                    "Nothing to Save",
+                    "Please generate a preview first before saving.",
+                    App);
                 return;
             }
 
@@ -180,10 +184,20 @@ public class PreviewWordDefinitionWindow : Window
             File.WriteAllText(filePath, html, System.Text.Encoding.UTF8);
             
             this.statusLabel.Text = $"Saved to: {fileName}";
+            
+            NotificationHelper.ShowSuccess(
+                "Preview Saved",
+                $"Successfully saved HTML preview to:\n\n{fileName}\n\n" +
+                $"Location: {AppContext.BaseDirectory}",
+                App);
         }
         catch (Exception ex)
         {
             this.statusLabel.Text = $"Error saving: {ex.Message}";
+            NotificationHelper.ShowError(
+                "Save Failed",
+                $"Failed to save HTML preview:\n\n{ex.Message}",
+                App);
         }
     }
 

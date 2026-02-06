@@ -311,6 +311,13 @@ public class WebScrapingWindow : Window
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Total words scraped: {results.Count}");
                     this.statusLabel.Text = $"Scraping complete! {results.Count} words scraped";
                     this.saveResultsButton.Enabled = true;
+                    
+                    NotificationHelper.ShowSuccess(
+                        "Scraping Complete",
+                        $"Successfully scraped word definitions from ordnet.dk.\n\n" +
+                        $"• Total definitions scraped: {results.Count:N0}\n" +
+                        $"• Saved to: {this.appSettings.ExportJsonFileName}",
+                        App);
                 });
             }
         }
@@ -320,6 +327,11 @@ public class WebScrapingWindow : Window
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Scraping stopped by user");
                 this.statusLabel.Text = "Scraping stopped";
+                
+                NotificationHelper.ShowWarning(
+                    "Scraping Stopped",
+                    "Web scraping was stopped by user.\n\nPartial results have been saved.",
+                    App);
             });
         }
         catch (Exception ex)
@@ -328,6 +340,11 @@ public class WebScrapingWindow : Window
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error: {ex.Message}");
                 this.statusLabel.Text = $"Error: {ex.Message}";
+                
+                NotificationHelper.ShowError(
+                    "Scraping Failed",
+                    $"An error occurred during web scraping:\n\n{ex.Message}",
+                    App);
             });
         }
         finally

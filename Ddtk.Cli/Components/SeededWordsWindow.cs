@@ -227,10 +227,20 @@ public class SeededWordsWindow : Window
             File.WriteAllText(filePath, content, Encoding.UTF8);
             
             this.statusLabel.Text = $"Exported {this.allWords.Count} word(s) to {fileName}";
+            
+            NotificationHelper.ShowSuccess(
+                "Export Successful",
+                $"Successfully exported {this.allWords.Count:N0} words to:\n\n{fileName}\n\n" +
+                $"Location: {AppContext.BaseDirectory}",
+                App);
         }
         catch (Exception ex)
         {
             this.statusLabel.Text = $"Error exporting: {ex.Message}";
+            NotificationHelper.ShowError(
+                "Export Failed",
+                $"Failed to export words:\n\n{ex.Message}",
+                App);
         }
     }
 }

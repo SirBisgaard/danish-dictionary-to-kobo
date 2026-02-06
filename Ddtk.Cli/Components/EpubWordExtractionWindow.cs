@@ -360,6 +360,14 @@ public class EpubWordExtractionWindow : Window
                 this.statusLabel.Text = $"Extraction complete! Found {this.extractedWords.Count} unique words";
                 this.saveButton.Enabled = true;
                 this.viewWordsButton.Enabled = true;
+                
+                NotificationHelper.ShowSuccess(
+                    "Extraction Complete",
+                    $"Successfully extracted words from {this.selectedFiles.Count} EPUB file(s).\n\n" +
+                    $"• Total unique words: {this.extractedWords.Count:N0}\n" +
+                    $"• New words: {newWords.Count:N0}\n" +
+                    $"• Already known: {existingWords.Count:N0}",
+                    App);
             });
         }
         catch (Exception ex)
@@ -367,6 +375,10 @@ public class EpubWordExtractionWindow : Window
             App?.Invoke(() =>
             {
                 this.statusLabel.Text = $"Error: {ex.Message}";
+                NotificationHelper.ShowError(
+                    "Extraction Failed",
+                    $"Failed to extract words from EPUB files:\n\n{ex.Message}",
+                    App);
             });
         }
         finally
@@ -420,10 +432,21 @@ public class EpubWordExtractionWindow : Window
             await service.SaveWords(combined, filePath);
             
             this.statusLabel.Text = $"Saved {combined.Count} words to seeding file";
+            
+            NotificationHelper.ShowSuccess(
+                "Saved to Seeding Words",
+                $"Successfully saved words to seeding file.\n\n" +
+                $"• Total words in file: {combined.Count:N0}\n" +
+                $"• File: {this.appSettings.SeedingWordsFileName}",
+                App);
         }
         catch (Exception ex)
         {
             this.statusLabel.Text = $"Error saving: {ex.Message}";
+            NotificationHelper.ShowError(
+                "Save Failed",
+                $"Failed to save words to seeding file:\n\n{ex.Message}",
+                App);
         }
     }
 
@@ -497,10 +520,20 @@ public class EpubWordExtractionWindow : Window
             await service.SaveWords(this.extractedWords, filePath);
             
             this.statusLabel.Text = $"Exported {this.extractedWords.Count} words to {fileName}";
+            
+            NotificationHelper.ShowSuccess(
+                "Export Successful",
+                $"Successfully exported {this.extractedWords.Count:N0} words to:\n\n{fileName}\n\n" +
+                $"Location: {AppContext.BaseDirectory}",
+                App);
         }
         catch (Exception ex)
         {
             this.statusLabel.Text = $"Error exporting: {ex.Message}";
+            NotificationHelper.ShowError(
+                "Export Failed",
+                $"Failed to export words:\n\n{ex.Message}",
+                App);
         }
     }
 }

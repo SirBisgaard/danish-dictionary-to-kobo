@@ -333,6 +333,15 @@ public class MainWindow : Window
                     UpdateDictionaryBuildStats();
                     UpdateFileStatus();
                     this.statusLabel.Text = $"Dashboard updated at {DateTime.Now:HH:mm:ss}";
+                    
+                    // Show success notification
+                    NotificationHelper.ShowSuccess(
+                        "Dashboard Refreshed",
+                        $"Successfully loaded dashboard data.\n\n" +
+                        $"• Seeding words: {this.totalSeedingWords:N0}\n" +
+                        $"• Scraped definitions: {this.scrapedWordsCount:N0}\n" +
+                        $"• Dictionary built: {(this.dictionaryExists ? "Yes" : "No")}",
+                        App);
                 });
             }
         }
@@ -341,6 +350,10 @@ public class MainWindow : Window
             App?.Invoke(() =>
             {
                 this.statusLabel.Text = $"Error loading dashboard: {ex.Message}";
+                NotificationHelper.ShowError(
+                    "Dashboard Load Failed",
+                    $"Failed to load dashboard data:\n\n{ex.Message}",
+                    App);
             });
         }
         finally
