@@ -1,7 +1,9 @@
 using Ddtk.Business.Services;
 using Ddtk.Cli.Components;
-using Ddtk.Cli.Components.Windows;
 using Ddtk.Cli.Helpers;
+using Ddtk.Cli.ViewModels;
+using Ddtk.Cli.Views;
+using Ddtk.Cli.Views.Windows;
 using Ddtk.DataAccess;
 using Ddtk.Domain;
 using Terminal.Gui.App;
@@ -27,43 +29,85 @@ public class TerminalOrchestrator(AppSettings appSettings) : IDisposable
         if (app is null)
             return;
 
-        var mainMenuBar = new MainMenuBar(ChangeWindow);
+        // Create navigation service first
+        var navigationService = new NavigationService(ChangeWindow);
+        var mainMenuBar = new MainMenuBar(navigationService);
         var mainStatusBar = new MainStatusBar();
         var dataStatusService = new DataStatusService(new FileSystemRepository(appSettings));
         var windowDataHelper = new WindowDataHelper();
         
-        
-        BaseWindow w;
+        Window window; // Changed from BaseWindow to Window (base class)
         switch (change)
         {
-            case WindowChange.ConfigWindow:
-                w = new ConfigWindow(mainMenuBar, mainStatusBar);
-                break;
-            case WindowChange.PreviewWordDefinitionWindow:
-                w = new PreviewWordDefinitionWindow(mainMenuBar, mainStatusBar, appSettings);
-                break;
-            case WindowChange.EpubWordExtractionWindow:
-                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar, appSettings);
-                break;
-            case WindowChange.SeededWordsWindow:
-                w = new SeededWordsWindow(mainMenuBar, mainStatusBar, appSettings);
-                break;
-            case WindowChange.WebScrapingWindow:
-                w = new WebScrapingWindow(mainMenuBar, mainStatusBar, appSettings);
-                break;
-            case WindowChange.DictionaryBuildWindow:
-                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar, appSettings);
-                break;
+            // NEW MVVM VIEWS
             case WindowChange.DashboardWindow:
+                var dashboardVm = new DashboardViewModel(dataStatusService, windowDataHelper, navigationService);
+                var dashboardView = new DashboardView(dashboardVm, mainMenuBar, mainStatusBar);
+                dashboardView.InitializeLayout();
+                dashboardView.BindViewModel();
+                Task.Run(() => dashboardVm.LoadDashboardDataAsync(false));
+                window = dashboardView;
+                break;
+            
+            case WindowChange.WebScrapingWindow:
+                var scrapingVm = new WebScrapingViewModel(appSettings);
+                var scrapingView = new WebScrapingView(scrapingVm, mainMenuBar, mainStatusBar);
+                scrapingView.InitializeLayout();
+                scrapingView.BindViewModel();
+                window = scrapingView;
+                break;
+            
+            case WindowChange.ConfigWindow:
+                var configVm = new ConfigViewModel();
+                var configView = new ConfigView(configVm, mainMenuBar, mainStatusBar);
+                configView.InitializeLayout();
+                configView.BindViewModel();
+                window = configView;
+                break;
+            
+            case WindowChange.PreviewWordDefinitionWindow:
+                var previewVm = new PreviewWordDefinitionViewModel(appSettings);
+                var previewView = new PreviewWordDefinitionView(previewVm, mainMenuBar, mainStatusBar);
+                previewView.InitializeLayout();
+                previewView.BindViewModel();
+                window = previewView;
+                break;
+            
+            case WindowChange.SeededWordsWindow:
+                var seededWordsVm = new SeededWordsViewModel(appSettings);
+                var seededWordsView = new SeededWordsView(seededWordsVm, mainMenuBar, mainStatusBar);
+                seededWordsView.InitializeLayout();
+                seededWordsView.BindViewModel();
+                window = seededWordsView;
+                break;
+            
+            case WindowChange.EpubWordExtractionWindow:
+                var epubVm = new EpubWordExtractionViewModel(appSettings);
+                var epubView = new EpubWordExtractionView(epubVm, mainMenuBar, mainStatusBar);
+                epubView.InitializeLayout();
+                epubView.BindViewModel();
+                window = epubView;
+                break;
+            
+            case WindowChange.DictionaryBuildWindow:
+                var dictionaryBuildVm = new DictionaryBuildViewModel(appSettings);
+                var dictionaryBuildView = new DictionaryBuildView(mainMenuBar, mainStatusBar, dictionaryBuildVm);
+                dictionaryBuildView.InitializeLayout();
+                dictionaryBuildView.BindViewModel();
+                window = dictionaryBuildView;
+                break;
             default:
-                w = new DashboardWindow(mainMenuBar, mainStatusBar,dataStatusService, windowDataHelper, ChangeWindow);
-                w.InitializeLayout();
-                w.LoadData();
+                // Default to dashboard
+                var defaultVM = new DashboardViewModel(dataStatusService, windowDataHelper, navigationService);
+                var defaultView = new DashboardView(defaultVM, mainMenuBar, mainStatusBar);
+                defaultView.InitializeLayout();
+                defaultView.BindViewModel();
+                window = defaultView;
                 break;
         }
 
         app.RequestStop();
-        app.Run(w);
+        app.Run(window);
     }
     
     public void Dispose()

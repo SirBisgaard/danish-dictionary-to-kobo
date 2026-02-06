@@ -10,7 +10,7 @@ namespace Ddtk.DataAccess;
 public class FileSystemRepository(AppSettings appSettings) : IFileSystemRepository
 {
     private readonly FileInfo seedingWordsFileInfo = new(Path.Combine(AppContext.BaseDirectory, appSettings.SeedingWordsFileName));
-    private readonly FileInfo wordDefinitionsFileInfo = new(Path.Combine(AppContext.BaseDirectory, appSettings.WordDefinitionFile));
+    private readonly FileInfo wordDefinitionsFileInfo = new(Path.Combine(AppContext.BaseDirectory, appSettings.WordDefinitionFileName));
     private readonly FileInfo koboDictionaryFileInfo = new(Path.Combine(AppContext.BaseDirectory, appSettings.KoboDictionaryFileName));
 
     public async Task<IList<string>> LoadSeedingWords()

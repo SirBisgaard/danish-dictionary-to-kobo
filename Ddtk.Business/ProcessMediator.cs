@@ -92,7 +92,7 @@ public class ProcessMediator : IAsyncDisposable
                 Culture = appSettings.Culture,
                 LogFileName = appSettings.LogFileName,
                 SeedingWordsFileName = appSettings.SeedingWordsFileName,
-                WordDefinitionFile = appSettings.WordDefinitionFile,
+                WordDefinitionFileName = appSettings.WordDefinitionFileName,
                 KoboDictionaryFileName = appSettings.KoboDictionaryFileName,
                 ExportKoboDictionaryTestHtmlFileName = appSettings.ExportKoboDictionaryTestHtmlFileName,
                 DictionaryCopyRightText = appSettings.DictionaryCopyRightText,

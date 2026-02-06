@@ -7,7 +7,7 @@ public class AppSettings
     public CultureInfo Culture { get; set; } = new("da-DK");
     public string LogFileName { get; set; } = string.Empty;
     public string SeedingWordsFileName { get; set; } = string.Empty;
-    public string WordDefinitionFile { get; set; } = string.Empty;
+    public string WordDefinitionFileName { get; set; } = string.Empty;
     public string KoboDictionaryFileName { get; set; } = string.Empty;
     public string ExportKoboDictionaryTestHtmlFileName { get; set; } = string.Empty;
     public string DictionaryCopyRightText { get; set; } = string.Empty;

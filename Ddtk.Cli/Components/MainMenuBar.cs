@@ -6,17 +6,21 @@ namespace Ddtk.Cli.Components;
 
 public class MainMenuBar : MenuBar
 {
-    public MainMenuBar(Action<WindowChange> changeWindow)
+    private readonly INavigationService navigationService;
+    
+    public MainMenuBar(INavigationService navigationService)
     {
+        this.navigationService = navigationService;
+        
         var menuItemFile = new MenuBarItem("_File", [
-            new MenuItem("_Dashboard", "- General Overview", () => changeWindow(WindowChange.DashboardWindow)),
-            new MenuItem("_EPUB Extractor", "- Extract words from EPUB files", () => changeWindow(WindowChange.EpubWordExtractionWindow)),
-            new MenuItem("_Web Scraping", "- Scrape word definitions from web", () => changeWindow(WindowChange.WebScrapingWindow)),
-            new MenuItem("Dictionary _Builder", "- Build Kobo dictionary ZIP", () => changeWindow(WindowChange.DictionaryBuildWindow)),
+            new MenuItem("_Dashboard", "- General Overview", () => navigationService.NavigateTo(WindowChange.DashboardWindow)),
+            new MenuItem("_EPUB Extractor", "- Extract words from EPUB files", () => navigationService.NavigateTo(WindowChange.EpubWordExtractionWindow)),
+            new MenuItem("_Web Scraping", "- Scrape word definitions from web", () => navigationService.NavigateTo(WindowChange.WebScrapingWindow)),
+            new MenuItem("Dictionary _Builder", "- Build Kobo dictionary ZIP", () => navigationService.NavigateTo(WindowChange.DictionaryBuildWindow)),
             null!, // Separator
-            new MenuItem("C_onfig", "- Configuration", () => changeWindow(WindowChange.ConfigWindow)),
-            new MenuItem("_Seeded Words", "- Manage seeded words list", () => changeWindow(WindowChange.SeededWordsWindow)),
-            new MenuItem("Preview _Definition", "- Preview Kobo HTML formatting", () => changeWindow(WindowChange.PreviewWordDefinitionWindow)),
+            new MenuItem("C_onfig", "- Configuration", () => navigationService.NavigateTo(WindowChange.ConfigWindow)),
+            new MenuItem("_Seeded Words", "- Manage seeded words list", () => navigationService.NavigateTo(WindowChange.SeededWordsWindow)),
+            new MenuItem("Preview _Definition", "- Preview Kobo HTML formatting", () => navigationService.NavigateTo(WindowChange.PreviewWordDefinitionWindow)),
             null!, // Separator
             new MenuItem("_Quit", "- Exit application", () => App?.RequestStop())
         ]);

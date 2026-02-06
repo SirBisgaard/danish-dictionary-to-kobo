@@ -17,7 +17,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
     public Task<StreamWriter> GetJsonBackupStream()
     {
         var currentDir = AppContext.BaseDirectory;
-        var path = Path.Combine(currentDir, appSettings.WordDefinitionFile);
+        var path = Path.Combine(currentDir, appSettings.WordDefinitionFileName);
 
         if (File.Exists(path))
         {
@@ -33,7 +33,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
     public async Task<List<WordDefinition>> LoadWordDefinitionsJson()
     {
         var currentDir = AppContext.BaseDirectory;
-        var fullPath = Path.Combine(currentDir, appSettings.WordDefinitionFile);
+        var fullPath = Path.Combine(currentDir, appSettings.WordDefinitionFileName);
         if (!File.Exists(fullPath))
         {
             logger.Log($" - File not found: {fullPath}");

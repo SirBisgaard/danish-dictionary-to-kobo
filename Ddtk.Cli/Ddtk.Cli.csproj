@@ -34,11 +34,14 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
+    <PackageReference Include="ReactiveUI" Version="22.3.1" />
+    <PackageReference Include="System.Reactive" Version="6.1.0" />
     <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4990" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Ddtk.Business\Ddtk.Business.csproj" />
+    <ProjectReference Include="..\Ddtk.DataAccess\Ddtk.DataAccess.csproj" />
     <ProjectReference Include="..\Ddtk.Domain\Ddtk.Domain.csproj" />
   </ItemGroup>
 </Project>
