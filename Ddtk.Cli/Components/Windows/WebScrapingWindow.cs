@@ -1,14 +1,14 @@
-using System.Text;
 using Ddtk.Business;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class WebScrapingWindow : Window
+public class WebScrapingWindow : BaseWindow
 {
     private readonly AppSettings appSettings;
     private readonly TextField workerCountField;
@@ -69,7 +69,7 @@ public class WebScrapingWindow : Window
             Y = 2
         };
 
-        this.workerCountField = new TextField
+        workerCountField = new TextField
         {
             Text = this.appSettings.WebScraperWorkerCount.ToString(),
             X = Pos.Right(workerCountLabel) + 1,
@@ -80,30 +80,30 @@ public class WebScrapingWindow : Window
         configFrame.Add(
             configInfoLabel,
             workerCountLabel,
-            this.workerCountField
+            workerCountField
         );
 
         // Control buttons
-        this.startButton = new Button
+        startButton = new Button
         {
             Text = "Start Scraping",
             X = 2,
             Y = Pos.Bottom(configFrame) + 1
         };
-        this.startButton.Accepting += (s, e) =>
+        startButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             StartScraping();
         };
 
-        this.stopButton = new Button
+        stopButton = new Button
         {
             Text = "Stop",
-            X = Pos.Right(this.startButton) + 2,
+            X = Pos.Right(startButton) + 2,
             Y = Pos.Bottom(configFrame) + 1,
             Enabled = false
         };
-        this.stopButton.Accepting += (s, e) =>
+        stopButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             StopScraping();
@@ -117,7 +117,7 @@ public class WebScrapingWindow : Window
             Y = Pos.Bottom(configFrame) + 3
         };
 
-        this.progressBar = new ProgressBar
+        progressBar = new ProgressBar
         {
             X = Pos.Right(progressLabel) + 1,
             Y = Pos.Bottom(configFrame) + 3,
@@ -125,10 +125,10 @@ public class WebScrapingWindow : Window
             Height = 1
         };
 
-        this.progressPercentLabel = new Label
+        progressPercentLabel = new Label
         {
             Text = "0%",
-            X = Pos.Right(this.progressBar) + 1,
+            X = Pos.Right(progressBar) + 1,
             Y = Pos.Bottom(configFrame) + 3,
             Width = 8
         };
@@ -143,28 +143,28 @@ public class WebScrapingWindow : Window
             Height = 5
         };
 
-        this.wordsScrapedLabel = new Label
+        wordsScrapedLabel = new Label
         {
             Text = "Words scraped: 0 / 0",
             X = 1,
             Y = 0
         };
 
-        this.queueSizeLabel = new Label
+        queueSizeLabel = new Label
         {
             Text = "Queue size: 0",
             X = 1,
             Y = 1
         };
 
-        this.elapsedTimeLabel = new Label
+        elapsedTimeLabel = new Label
         {
             Text = "Elapsed time: 00:00:00",
             X = 1,
             Y = 2
         };
 
-        statusFrame.Add(this.wordsScrapedLabel, this.queueSizeLabel, this.elapsedTimeLabel);
+        statusFrame.Add(wordsScrapedLabel, queueSizeLabel, elapsedTimeLabel);
 
         // Activity log
         FrameView logFrame = new()
@@ -176,7 +176,7 @@ public class WebScrapingWindow : Window
             Height = 10
         };
 
-        this.activityLogView = new TextView
+        activityLogView = new TextView
         {
             X = 0,
             Y = 0,
@@ -186,17 +186,17 @@ public class WebScrapingWindow : Window
             WordWrap = false
         };
 
-        logFrame.Add(this.activityLogView);
+        logFrame.Add(activityLogView);
 
         // Action buttons
-        this.saveResultsButton = new Button
+        saveResultsButton = new Button
         {
             Text = "Save Results to JSON",
             X = 2,
             Y = Pos.Bottom(logFrame) + 1,
             Enabled = false
         };
-        this.saveResultsButton.Accepting += (s, e) =>
+        saveResultsButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             SaveResults();
@@ -205,7 +205,7 @@ public class WebScrapingWindow : Window
         Button viewResultsButton = new()
         {
             Text = "View Results",
-            X = Pos.Right(this.saveResultsButton) + 2,
+            X = Pos.Right(saveResultsButton) + 2,
             Y = Pos.Bottom(logFrame) + 1,
             Enabled = false
         };
@@ -216,7 +216,7 @@ public class WebScrapingWindow : Window
         };
 
         // Status label
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = "Ready to start scraping",
             X = 2,
@@ -226,12 +226,12 @@ public class WebScrapingWindow : Window
 
         window.Add(
             configFrame,
-            this.startButton, this.stopButton,
-            progressLabel, this.progressBar, this.progressPercentLabel,
+            startButton, stopButton,
+            progressLabel, progressBar, progressPercentLabel,
             statusFrame,
             logFrame,
-            this.saveResultsButton, viewResultsButton,
-            this.statusLabel
+            saveResultsButton, viewResultsButton,
+            statusLabel
         );
         
         Add(menu, window, statusBar);
@@ -239,24 +239,24 @@ public class WebScrapingWindow : Window
 
     private async void StartScraping()
     {
-        if (this.isScraping)
+        if (isScraping)
         {
             return;
         }
 
         // Validate worker count
-        if (!int.TryParse(this.workerCountField.Text, out int workerCount) || workerCount <= 0)
+        if (!int.TryParse(workerCountField.Text, out int workerCount) || workerCount <= 0)
         {
-            this.statusLabel.Text = "Error: Worker count must be a positive integer";
+            statusLabel.Text = "Error: Worker count must be a positive integer";
             return;
         }
 
-        this.isScraping = true;
-        this.startButton.Enabled = false;
-        this.stopButton.Enabled = true;
-        this.saveResultsButton.Enabled = false;
-        this.cancellationTokenSource = new CancellationTokenSource();
-        this.activityLog.Clear();
+        isScraping = true;
+        startButton.Enabled = false;
+        stopButton.Enabled = true;
+        saveResultsButton.Enabled = false;
+        cancellationTokenSource = new CancellationTokenSource();
+        activityLog.Clear();
 
         // Create scraping options (with default runtime settings)
         var options = new ScrapingOptions
@@ -273,7 +273,7 @@ public class WebScrapingWindow : Window
 
         try
         {
-            var mediator = new ProcessMediator(this.appSettings);
+            var mediator = new ProcessMediator(appSettings);
             await using (mediator)
             {
                 // Load seeding words
@@ -303,21 +303,21 @@ public class WebScrapingWindow : Window
                     seedingWords,
                     options,
                     progress,
-                    this.cancellationTokenSource.Token);
+                    cancellationTokenSource.Token);
 
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Scraping completed!");
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Total words scraped: {results.Count}");
-                    this.statusLabel.Text = $"Scraping complete! {results.Count} words scraped";
-                    this.saveResultsButton.Enabled = true;
+                    statusLabel.Text = $"Scraping complete! {results.Count} words scraped";
+                    saveResultsButton.Enabled = true;
                     
-                    NotificationHelper.ShowSuccess(
+                    DialogService.ShowDialog(
+                        App,
                         "Scraping Complete",
                         $"Successfully scraped word definitions from ordnet.dk.\n\n" +
                         $"• Total definitions scraped: {results.Count:N0}\n" +
-                        $"• Saved to: {this.appSettings.ExportJsonFileName}",
-                        App);
+                        $"• Saved to: {appSettings.WordDefinitionFile}");
                 });
             }
         }
@@ -326,12 +326,12 @@ public class WebScrapingWindow : Window
             App?.Invoke(() =>
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Scraping stopped by user");
-                this.statusLabel.Text = "Scraping stopped";
+                statusLabel.Text = "Scraping stopped";
                 
-                NotificationHelper.ShowWarning(
+                DialogService.ShowDialog(
+                    App,
                     "Scraping Stopped",
-                    "Web scraping was stopped by user.\n\nPartial results have been saved.",
-                    App);
+                    "Web scraping was stopped by user.\n\nPartial results have been saved.");
             });
         }
         catch (Exception ex)
@@ -339,32 +339,32 @@ public class WebScrapingWindow : Window
             App?.Invoke(() =>
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error: {ex.Message}");
-                this.statusLabel.Text = $"Error: {ex.Message}";
+                statusLabel.Text = $"Error: {ex.Message}";
                 
-                NotificationHelper.ShowError(
+                DialogService.ShowDialog(
+                    App,
                     "Scraping Failed",
-                    $"An error occurred during web scraping:\n\n{ex.Message}",
-                    App);
+                    $"An error occurred during web scraping:\n\n{ex.Message}");
             });
         }
         finally
         {
-            this.isScraping = false;
+            isScraping = false;
             App?.Invoke(() =>
             {
-                this.startButton.Enabled = true;
-                this.stopButton.Enabled = false;
+                startButton.Enabled = true;
+                stopButton.Enabled = false;
             });
         }
     }
 
     private void StopScraping()
     {
-        if (this.cancellationTokenSource != null && !this.cancellationTokenSource.IsCancellationRequested)
+        if (cancellationTokenSource != null && !cancellationTokenSource.IsCancellationRequested)
         {
             AddLog($"[{DateTime.Now:HH:mm:ss}] Stopping scraping...");
-            this.cancellationTokenSource.Cancel();
-            this.statusLabel.Text = "Stopping...";
+            cancellationTokenSource.Cancel();
+            statusLabel.Text = "Stopping...";
         }
     }
 
@@ -372,13 +372,13 @@ public class WebScrapingWindow : Window
     {
         // Update progress bar
         var fraction = progress.TotalWords > 0 ? (float)progress.WordsScraped / progress.TotalWords : 0;
-        this.progressBar.Fraction = Math.Min(fraction, 1.0f);
-        this.progressPercentLabel.Text = $"{progress.PercentComplete:F1}%";
+        progressBar.Fraction = Math.Min(fraction, 1.0f);
+        progressPercentLabel.Text = $"{progress.PercentComplete:F1}%";
 
         // Update status labels
-        this.wordsScrapedLabel.Text = $"Words scraped: {progress.WordsScraped} / {progress.TotalWords}";
-        this.queueSizeLabel.Text = $"Queue size: {progress.QueueSize}";
-        this.elapsedTimeLabel.Text = $"Elapsed time: {progress.Elapsed:hh\\:mm\\:ss}";
+        wordsScrapedLabel.Text = $"Words scraped: {progress.WordsScraped} / {progress.TotalWords}";
+        queueSizeLabel.Text = $"Queue size: {progress.QueueSize}";
+        elapsedTimeLabel.Text = $"Elapsed time: {progress.Elapsed:hh\\:mm\\:ss}";
 
         // Add log messages
         if (!string.IsNullOrEmpty(progress.LogMessage))
@@ -389,29 +389,39 @@ public class WebScrapingWindow : Window
 
     private void AddLog(string message)
     {
-        this.activityLog.Add(message);
+        activityLog.Add(message);
         
         // Keep last 1000 entries
-        if (this.activityLog.Count > 1000)
+        if (activityLog.Count > 1000)
         {
-            this.activityLog.RemoveAt(0);
+            activityLog.RemoveAt(0);
         }
 
         // Update text view
-        var logText = string.Join("\n", this.activityLog);
-        this.activityLogView.Text = logText;
+        var logText = string.Join("\n", activityLog);
+        activityLogView.Text = logText;
 
         // Auto-scroll to bottom by moving cursor to end
-        this.activityLogView.MoveEnd();
+        activityLogView.MoveEnd();
     }
 
     private void SaveResults()
     {
-        this.statusLabel.Text = "Results are automatically saved to JSON during scraping";
+        statusLabel.Text = "Results are automatically saved to JSON during scraping";
     }
 
     private void ViewResults()
     {
-        this.statusLabel.Text = "Navigate to 'Build Dictionary' window to process results";
+        statusLabel.Text = "Navigate to 'Build Dictionary' window to process results";
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

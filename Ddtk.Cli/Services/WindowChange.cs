@@ -1,10 +1,9 @@
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Services;
 
 public enum WindowChange
 {
-    MainWindow,
+    DashboardWindow,
     ConfigWindow,
-    StatusWindow,
     PreviewWordDefinitionWindow,
     EpubWordExtractionWindow,
     SeededWordsWindow,

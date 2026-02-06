@@ -1,15 +1,15 @@
 using System.Collections.ObjectModel;
 using System.Text;
 using Ddtk.Business;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
-using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class SeededWordsWindow : Window
+public class SeededWordsWindow : BaseWindow
 {
     private readonly AppSettings appSettings;
     private readonly TextField searchField;
@@ -46,24 +46,24 @@ public class SeededWordsWindow : Window
             Y = 1
         };
 
-        this.searchField = new TextField
+        searchField = new TextField
         {
             X = Pos.Right(searchLabel) + 1,
             Y = 1,
             Width = 30
         };
-        this.searchField.TextChanged += (s, e) => FilterWords();
+        searchField.TextChanged += (s, e) => FilterWords();
 
         Button clearSearchButton = new()
         {
             Text = "Clear",
-            X = Pos.Right(this.searchField) + 2,
+            X = Pos.Right(searchField) + 2,
             Y = 1
         };
         clearSearchButton.Accepting += (s, e) =>
         {
             e.Handled = true;
-            this.searchField.Text = string.Empty;
+            searchField.Text = string.Empty;
         };
 
         // List view frame
@@ -76,14 +76,14 @@ public class SeededWordsWindow : Window
             Height = Dim.Fill() - 13
         };
 
-        this.wordsListView = new ListView
+        wordsListView = new ListView
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        listFrame.Add(this.wordsListView);
+        listFrame.Add(wordsListView);
 
         // Action buttons
         Button refreshButton = new()
@@ -111,7 +111,7 @@ public class SeededWordsWindow : Window
         };
 
         // Statistics section
-        this.statsLabel = new Label
+        statsLabel = new Label
         {
             Text = "Statistics: Loading...",
             X = 2,
@@ -121,7 +121,7 @@ public class SeededWordsWindow : Window
         };
 
         // Status label
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = "Loading words...",
             X = 2,
@@ -130,10 +130,10 @@ public class SeededWordsWindow : Window
         };
 
         window.Add(
-            searchLabel, this.searchField, clearSearchButton,
+            searchLabel, searchField, clearSearchButton,
             listFrame,
             refreshButton, exportButton,
-            this.statsLabel, this.statusLabel
+            statsLabel, statusLabel
         );
         
         Add(menu, window, statusBar);
@@ -146,13 +146,13 @@ public class SeededWordsWindow : Window
     {
         try
         {
-            this.statusLabel.Text = "Loading words...";
+            statusLabel.Text = "Loading words...";
             
-            var mediator = new ProcessMediator(this.appSettings);
+            var mediator = new ProcessMediator(appSettings);
             await using (mediator)
             {
                 var words = await mediator.LoadSeedingWords();
-                this.allWords = [.. words.OrderBy(w => w, StringComparer.Create(this.appSettings.Culture, true))];
+                allWords = [.. words.OrderBy(w => w, StringComparer.Create(appSettings.Culture, true))];
                 
                 // Load statistics
                 var wordDefinitions = await mediator.LoadWordDefinitionsJson();
@@ -160,14 +160,14 @@ public class SeededWordsWindow : Window
                     wordDefinitions.Select(wd => wd.Word.ToLowerInvariant()),
                     StringComparer.OrdinalIgnoreCase);
                 
-                var alreadyProcessed = this.allWords.Count(w => processedSet.Contains(w));
-                var remaining = this.allWords.Count - alreadyProcessed;
+                var alreadyProcessed = allWords.Count(w => processedSet.Contains(w));
+                var remaining = allWords.Count - alreadyProcessed;
                 
                 App?.Invoke(() =>
                 {
                     FilterWords();
-                    UpdateStats(this.allWords.Count, alreadyProcessed, remaining);
-                    this.statusLabel.Text = $"Loaded {this.allWords.Count} words";
+                    UpdateStats(allWords.Count, alreadyProcessed, remaining);
+                    statusLabel.Text = $"Loaded {allWords.Count} words";
                 });
             }
         }
@@ -175,31 +175,31 @@ public class SeededWordsWindow : Window
         {
             App?.Invoke(() =>
             {
-                this.statusLabel.Text = $"Error loading words: {ex.Message}";
+                statusLabel.Text = $"Error loading words: {ex.Message}";
             });
         }
     }
 
     private void FilterWords()
     {
-        var searchText = this.searchField.Text?.ToLowerInvariant() ?? string.Empty;
+        var searchText = searchField.Text?.ToLowerInvariant() ?? string.Empty;
         
         if (string.IsNullOrWhiteSpace(searchText))
         {
-            this.filteredWords = new ObservableCollection<string>(this.allWords);
+            filteredWords = new ObservableCollection<string>(allWords);
         }
         else
         {
-            this.filteredWords = new ObservableCollection<string>(
-                this.allWords.Where(w => w.ToLowerInvariant().Contains(searchText)));
+            filteredWords = new ObservableCollection<string>(
+                allWords.Where(w => w.ToLowerInvariant().Contains(searchText)));
         }
         
-        this.wordsListView.SetSource(this.filteredWords);
+        wordsListView.SetSource(filteredWords);
         
-        var parentFrame = this.wordsListView.SuperView as FrameView;
+        var parentFrame = wordsListView.SuperView as FrameView;
         if (parentFrame != null)
         {
-            parentFrame.Title = $"Seeded Words ({this.allWords.Count} total | {this.filteredWords.Count} shown)";
+            parentFrame.Title = $"Seeded Words ({allWords.Count} total | {filteredWords.Count} shown)";
         }
     }
 
@@ -212,7 +212,7 @@ public class SeededWordsWindow : Window
         sb.AppendLine($"  • Already processed: {processed:N0} ({percentage:F1}%)");
         sb.AppendLine($"  • Remaining to scrape: {remaining:N0}");
         
-        this.statsLabel.Text = sb.ToString();
+        statsLabel.Text = sb.ToString();
     }
 
     private void ExportToFile()
@@ -223,24 +223,34 @@ public class SeededWordsWindow : Window
             var fileName = $"exported_words_{timestamp}.txt";
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
             
-            var content = string.Join(";", this.allWords);
+            var content = string.Join(";", allWords);
             File.WriteAllText(filePath, content, Encoding.UTF8);
             
-            this.statusLabel.Text = $"Exported {this.allWords.Count} word(s) to {fileName}";
+            statusLabel.Text = $"Exported {allWords.Count} word(s) to {fileName}";
             
-            NotificationHelper.ShowSuccess(
+            DialogService.ShowDialog(
+                App,
                 "Export Successful",
-                $"Successfully exported {this.allWords.Count:N0} words to:\n\n{fileName}\n\n" +
-                $"Location: {AppContext.BaseDirectory}",
-                App);
+                $"Successfully exported {allWords.Count:N0} words to:\n\n{fileName}\n\n" +
+                $"Location: {AppContext.BaseDirectory}");
         }
         catch (Exception ex)
         {
-            this.statusLabel.Text = $"Error exporting: {ex.Message}";
-            NotificationHelper.ShowError(
+            statusLabel.Text = $"Error exporting: {ex.Message}";
+            DialogService.ShowDialog(
+                App,
                 "Export Failed",
-                $"Failed to export words:\n\n{ex.Message}",
-                App);
+                $"Failed to export words:\n\n{ex.Message}");
         }
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

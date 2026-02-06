@@ -1,27 +1,25 @@
+using Ddtk.Business.Services;
 using Ddtk.Cli.Components;
+using Ddtk.Cli.Components.Windows;
+using Ddtk.Cli.Helpers;
+using Ddtk.DataAccess;
 using Ddtk.Domain;
 using Terminal.Gui.App;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli;
+namespace Ddtk.Cli.Services;
 
-public class TerminalOrchestrator : IDisposable
+public class TerminalOrchestrator(AppSettings appSettings) : IDisposable
 {
-    private readonly AppSettings appSettings;
     private IApplication? app;
 
-    public TerminalOrchestrator(AppSettings appSettings)
-    {
-        this.appSettings = appSettings;
-    }
-    
     public void InitApp()
     {
         Terminal.Gui.Configuration.ConfigurationManager.RuntimeConfig = """{ "Theme": "Amber Phosphor" }""";
         Terminal.Gui.Configuration.ConfigurationManager.Enable(Terminal.Gui.Configuration.ConfigLocations.All);
 
         app = Application.Create().Init();
-        ChangeWindow(WindowChange.MainWindow);
+        ChangeWindow(WindowChange.DashboardWindow);
     }
 
     private void ChangeWindow(WindowChange change)
@@ -31,34 +29,36 @@ public class TerminalOrchestrator : IDisposable
 
         var mainMenuBar = new MainMenuBar(ChangeWindow);
         var mainStatusBar = new MainStatusBar();
+        var dataStatusService = new DataStatusService(new FileSystemRepository(appSettings));
+        var windowDataHelper = new WindowDataHelper();
         
-        Window w;
+        
+        BaseWindow w;
         switch (change)
         {
-            case WindowChange.StatusWindow:
-                w = new StatusWindow(mainMenuBar, mainStatusBar);
-                break;
             case WindowChange.ConfigWindow:
                 w = new ConfigWindow(mainMenuBar, mainStatusBar);
                 break;
             case WindowChange.PreviewWordDefinitionWindow:
-                w = new PreviewWordDefinitionWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                w = new PreviewWordDefinitionWindow(mainMenuBar, mainStatusBar, appSettings);
                 break;
             case WindowChange.EpubWordExtractionWindow:
-                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                w = new EpubWordExtractionWindow(mainMenuBar, mainStatusBar, appSettings);
                 break;
             case WindowChange.SeededWordsWindow:
-                w = new SeededWordsWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                w = new SeededWordsWindow(mainMenuBar, mainStatusBar, appSettings);
                 break;
             case WindowChange.WebScrapingWindow:
-                w = new WebScrapingWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                w = new WebScrapingWindow(mainMenuBar, mainStatusBar, appSettings);
                 break;
             case WindowChange.DictionaryBuildWindow:
-                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar, this.appSettings);
+                w = new DictionaryBuildWindow(mainMenuBar, mainStatusBar, appSettings);
                 break;
-            case WindowChange.MainWindow:
+            case WindowChange.DashboardWindow:
             default:
-                w = new MainWindow(mainMenuBar, mainStatusBar, this.appSettings, ChangeWindow);
+                w = new DashboardWindow(mainMenuBar, mainStatusBar,dataStatusService, windowDataHelper, ChangeWindow);
+                w.InitializeLayout();
+                w.LoadData();
                 break;
         }
 

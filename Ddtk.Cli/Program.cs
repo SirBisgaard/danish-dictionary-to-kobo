@@ -1,4 +1,5 @@
-﻿using Ddtk.Cli;
+﻿using Ddtk.Business.Services;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ if (appSettings == null)
 }
 
 var host = Host.CreateDefaultBuilder()
-    .ConfigureServices((context, services) =>
+    .ConfigureServices((_, services) =>
     {
         // Config
         services.AddSingleton(appSettings);
@@ -26,7 +27,9 @@ var host = Host.CreateDefaultBuilder()
         services.AddTransient<TerminalOrchestrator>();
 
         // Windows
-
+        
+        
+        // Other
         services.AddLogging(builder =>
             {
                 builder

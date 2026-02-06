@@ -1,14 +1,15 @@
 using System.Text;
 using Ddtk.Business;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class DictionaryBuildWindow : Window
+public class DictionaryBuildWindow : BaseWindow
 {
     private readonly AppSettings appSettings;
     private readonly Button loadButton;
@@ -66,26 +67,26 @@ public class DictionaryBuildWindow : Window
             Y = 0
         };
 
-        this.loadedWordsLabel = new Label
+        loadedWordsLabel = new Label
         {
             Text = "Loaded: 0 word definitions",
             X = 1,
             Y = 1
         };
 
-        this.loadButton = new Button
+        loadButton = new Button
         {
             Text = "Load from JSON",
             X = 1,
             Y = 2
         };
-        this.loadButton.Accepting += (s, e) =>
+        loadButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             LoadWordDefinitions();
         };
 
-        loadFrame.Add(loadInfoLabel, this.loadedWordsLabel, this.loadButton);
+        loadFrame.Add(loadInfoLabel, loadedWordsLabel, loadButton);
 
         // Processing section (Step 2)
         FrameView processingFrame = new()
@@ -104,14 +105,14 @@ public class DictionaryBuildWindow : Window
             Y = 0
         };
 
-        this.startProcessingButton = new Button
+        startProcessingButton = new Button
         {
             Text = "Start Processing",
             X = 1,
             Y = 1,
             Enabled = false
         };
-        this.startProcessingButton.Accepting += (s, e) =>
+        startProcessingButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             StartProcessing();
@@ -124,7 +125,7 @@ public class DictionaryBuildWindow : Window
             Y = 3
         };
 
-        this.processingProgressBar = new ProgressBar
+        processingProgressBar = new ProgressBar
         {
             X = Pos.Right(processingProgressLabel) + 1,
             Y = 3,
@@ -132,15 +133,15 @@ public class DictionaryBuildWindow : Window
             Height = 1
         };
 
-        this.processingPercentLabel = new Label
+        processingPercentLabel = new Label
         {
             Text = "0%",
-            X = Pos.Right(this.processingProgressBar) + 1,
+            X = Pos.Right(processingProgressBar) + 1,
             Y = 3,
             Width = 8
         };
 
-        this.processingStatusLabel = new Label
+        processingStatusLabel = new Label
         {
             Text = "Not started",
             X = 1,
@@ -150,9 +151,9 @@ public class DictionaryBuildWindow : Window
 
         processingFrame.Add(
             processingInfoLabel,
-            this.startProcessingButton,
-            processingProgressLabel, this.processingProgressBar, this.processingPercentLabel,
-            this.processingStatusLabel
+            startProcessingButton,
+            processingProgressLabel, processingProgressBar, processingPercentLabel,
+            processingStatusLabel
         );
 
         // Build section (Step 3)
@@ -172,14 +173,14 @@ public class DictionaryBuildWindow : Window
             Y = 0
         };
 
-        this.startBuildButton = new Button
+        startBuildButton = new Button
         {
             Text = "Start Build",
             X = 1,
             Y = 1,
             Enabled = false
         };
-        this.startBuildButton.Accepting += (s, e) =>
+        startBuildButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             StartBuild();
@@ -192,7 +193,7 @@ public class DictionaryBuildWindow : Window
             Y = 3
         };
 
-        this.buildProgressBar = new ProgressBar
+        buildProgressBar = new ProgressBar
         {
             X = Pos.Right(buildProgressLabel) + 1,
             Y = 3,
@@ -200,15 +201,15 @@ public class DictionaryBuildWindow : Window
             Height = 1
         };
 
-        this.buildPercentLabel = new Label
+        buildPercentLabel = new Label
         {
             Text = "0%",
-            X = Pos.Right(this.buildProgressBar) + 1,
+            X = Pos.Right(buildProgressBar) + 1,
             Y = 3,
             Width = 8
         };
 
-        this.buildStatusLabel = new Label
+        buildStatusLabel = new Label
         {
             Text = "Not started",
             X = 1,
@@ -218,9 +219,9 @@ public class DictionaryBuildWindow : Window
 
         buildFrame.Add(
             buildInfoLabel,
-            this.startBuildButton,
-            buildProgressLabel, this.buildProgressBar, this.buildPercentLabel,
-            this.buildStatusLabel
+            startBuildButton,
+            buildProgressLabel, buildProgressBar, buildPercentLabel,
+            buildStatusLabel
         );
 
         // Activity log
@@ -233,7 +234,7 @@ public class DictionaryBuildWindow : Window
             Height = 8
         };
 
-        this.activityLogView = new TextView
+        activityLogView = new TextView
         {
             X = 0,
             Y = 0,
@@ -243,17 +244,17 @@ public class DictionaryBuildWindow : Window
             WordWrap = false
         };
 
-        logFrame.Add(this.activityLogView);
+        logFrame.Add(activityLogView);
 
         // Action buttons
-        this.viewOutputButton = new Button
+        viewOutputButton = new Button
         {
             Text = "View Output File",
             X = 2,
             Y = Pos.Bottom(logFrame) + 1,
             Enabled = false
         };
-        this.viewOutputButton.Accepting += (s, e) =>
+        viewOutputButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             ViewOutputFile();
@@ -262,7 +263,7 @@ public class DictionaryBuildWindow : Window
         Button buildAllButton = new()
         {
             Text = "Build All (Load + Process + Build)",
-            X = Pos.Right(this.viewOutputButton) + 2,
+            X = Pos.Right(viewOutputButton) + 2,
             Y = Pos.Bottom(logFrame) + 1
         };
         buildAllButton.Accepting += (s, e) =>
@@ -272,7 +273,7 @@ public class DictionaryBuildWindow : Window
         };
 
         // Status label
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = "Ready. Click 'Load from JSON' to begin",
             X = 2,
@@ -285,8 +286,8 @@ public class DictionaryBuildWindow : Window
             processingFrame,
             buildFrame,
             logFrame,
-            this.viewOutputButton, buildAllButton,
-            this.statusLabel
+            viewOutputButton, buildAllButton,
+            statusLabel
         );
         
         Add(menu, window, statusBar);
@@ -300,20 +301,20 @@ public class DictionaryBuildWindow : Window
         try
         {
             AddLog($"[{DateTime.Now:HH:mm:ss}] Loading word definitions from JSON...");
-            this.statusLabel.Text = "Loading word definitions...";
+            statusLabel.Text = "Loading word definitions...";
 
-            var mediator = new ProcessMediator(this.appSettings);
+            var mediator = new ProcessMediator(appSettings);
             await using (mediator)
             {
-                this.loadedDefinitions = await mediator.LoadWordDefinitionsJson();
+                loadedDefinitions = await mediator.LoadWordDefinitionsJson();
                 
                 App?.Invoke(() =>
                 {
-                    this.loadedWordsLabel.Text = $"Loaded: {this.loadedDefinitions.Count:N0} word definitions";
-                    this.startProcessingButton.Enabled = this.loadedDefinitions.Count > 0;
+                    loadedWordsLabel.Text = $"Loaded: {loadedDefinitions.Count:N0} word definitions";
+                    startProcessingButton.Enabled = loadedDefinitions.Count > 0;
                     
-                    AddLog($"[{DateTime.Now:HH:mm:ss}] Successfully loaded {this.loadedDefinitions.Count:N0} word definitions");
-                    this.statusLabel.Text = $"Loaded {this.loadedDefinitions.Count:N0} word definitions. Click 'Start Processing'";
+                    AddLog($"[{DateTime.Now:HH:mm:ss}] Successfully loaded {loadedDefinitions.Count:N0} word definitions");
+                    statusLabel.Text = $"Loaded {loadedDefinitions.Count:N0} word definitions. Click 'Start Processing'";
                 });
             }
         }
@@ -322,28 +323,28 @@ public class DictionaryBuildWindow : Window
             App?.Invoke(() =>
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error loading: {ex.Message}");
-                this.statusLabel.Text = $"Error: {ex.Message}";
+                statusLabel.Text = $"Error: {ex.Message}";
             });
         }
     }
 
     private async void StartProcessing()
     {
-        if (this.isProcessing || this.loadedDefinitions.Count == 0)
+        if (isProcessing || loadedDefinitions.Count == 0)
         {
             return;
         }
 
-        this.isProcessing = true;
-        this.startProcessingButton.Enabled = false;
-        this.startBuildButton.Enabled = false;
+        isProcessing = true;
+        startProcessingButton.Enabled = false;
+        startBuildButton.Enabled = false;
 
         AddLog($"[{DateTime.Now:HH:mm:ss}] Starting word definition processing...");
-        this.statusLabel.Text = "Processing word definitions...";
+        statusLabel.Text = "Processing word definitions...";
 
         try
         {
-            var mediator = new ProcessMediator(this.appSettings);
+            var mediator = new ProcessMediator(appSettings);
             await using (mediator)
             {
                 var progress = new Progress<ProcessingProgress>(p =>
@@ -354,21 +355,21 @@ public class DictionaryBuildWindow : Window
                     });
                 });
 
-                this.processedDefinitions = await mediator.RunProcessing(this.loadedDefinitions, progress);
+                processedDefinitions = await mediator.RunProcessing(loadedDefinitions, progress);
 
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Processing completed!");
-                    AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {this.processedDefinitions.Count:N0} word definitions");
-                    this.statusLabel.Text = $"Processing complete! {this.processedDefinitions.Count:N0} definitions ready. Click 'Start Build'";
-                    this.startBuildButton.Enabled = true;
+                    AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {processedDefinitions.Count:N0} word definitions");
+                    statusLabel.Text = $"Processing complete! {processedDefinitions.Count:N0} definitions ready. Click 'Start Build'";
+                    startBuildButton.Enabled = true;
                     
-                    NotificationHelper.ShowSuccess(
+                    DialogService.ShowDialog(
+                        App,
                         "Processing Complete",
                         $"Successfully processed word definitions.\n\n" +
-                        $"• Processed: {this.processedDefinitions.Count:N0} definitions\n" +
-                        $"• Ready to build Kobo dictionary",
-                        App);
+                        $"• Processed: {processedDefinitions.Count:N0} definitions\n" +
+                        $"• Ready to build Kobo dictionary");
                 });
             }
         }
@@ -377,41 +378,41 @@ public class DictionaryBuildWindow : Window
             App?.Invoke(() =>
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error during processing: {ex.Message}");
-                this.statusLabel.Text = $"Error: {ex.Message}";
+                statusLabel.Text = $"Error: {ex.Message}";
                 
-                NotificationHelper.ShowError(
+                DialogService.ShowDialog(
+                    App,
                     "Processing Failed",
-                    $"Failed to process word definitions:\n\n{ex.Message}",
-                    App);
+                    $"Failed to process word definitions:\n\n{ex.Message}");
             });
         }
         finally
         {
-            this.isProcessing = false;
+            isProcessing = false;
             App?.Invoke(() =>
             {
-                this.startProcessingButton.Enabled = this.loadedDefinitions.Count > 0;
+                startProcessingButton.Enabled = loadedDefinitions.Count > 0;
             });
         }
     }
 
     private async void StartBuild()
     {
-        if (this.isBuilding || this.processedDefinitions.Count == 0)
+        if (isBuilding || processedDefinitions.Count == 0)
         {
             return;
         }
 
-        this.isBuilding = true;
-        this.startBuildButton.Enabled = false;
-        this.startProcessingButton.Enabled = false;
+        isBuilding = true;
+        startBuildButton.Enabled = false;
+        startProcessingButton.Enabled = false;
 
         AddLog($"[{DateTime.Now:HH:mm:ss}] Starting Kobo dictionary build...");
-        this.statusLabel.Text = "Building Kobo dictionary ZIP...";
+        statusLabel.Text = "Building Kobo dictionary ZIP...";
 
         try
         {
-            var mediator = new ProcessMediator(this.appSettings);
+            var mediator = new ProcessMediator(appSettings);
             await using (mediator)
             {
                 var progress = new Progress<BuildProgress>(p =>
@@ -422,23 +423,23 @@ public class DictionaryBuildWindow : Window
                     });
                 });
 
-                await mediator.RunBuild(this.processedDefinitions, progress);
+                await mediator.RunBuild(processedDefinitions, progress);
 
                 App?.Invoke(() =>
                 {
-                    var outputFileName = this.appSettings.ExportKoboDictionaryFileName;
+                    var outputFileName = appSettings.KoboDictionaryFileName;
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Build completed!");
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Output file: {outputFileName}");
-                    this.statusLabel.Text = $"Build complete! Dictionary saved to {outputFileName}";
-                    this.viewOutputButton.Enabled = true;
+                    statusLabel.Text = $"Build complete! Dictionary saved to {outputFileName}";
+                    viewOutputButton.Enabled = true;
                     
-                    NotificationHelper.ShowSuccess(
+                    DialogService.ShowDialog(
+                        App,
                         "Dictionary Build Complete",
                         $"Successfully built Kobo dictionary!\n\n" +
                         $"• Output file: {outputFileName}\n" +
-                        $"• Words included: {this.processedDefinitions.Count:N0}\n\n" +
-                        $"Copy the ZIP file to your Kobo e-reader's '.kobo/dict' folder.",
-                        App);
+                        $"• Words included: {processedDefinitions.Count:N0}\n\n" +
+                        $"Copy the ZIP file to your Kobo e-reader's '.kobo/dict' folder.");
                 });
             }
         }
@@ -447,21 +448,21 @@ public class DictionaryBuildWindow : Window
             App?.Invoke(() =>
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Error during build: {ex.Message}");
-                this.statusLabel.Text = $"Error: {ex.Message}";
+                statusLabel.Text = $"Error: {ex.Message}";
                 
-                NotificationHelper.ShowError(
+                DialogService.ShowDialog(
+                    App,
                     "Build Failed",
-                    $"Failed to build Kobo dictionary:\n\n{ex.Message}",
-                    App);
+                    $"Failed to build Kobo dictionary:\n\n{ex.Message}");
             });
         }
         finally
         {
-            this.isBuilding = false;
+            isBuilding = false;
             App?.Invoke(() =>
             {
-                this.startBuildButton.Enabled = this.processedDefinitions.Count > 0;
-                this.startProcessingButton.Enabled = this.loadedDefinitions.Count > 0;
+                startBuildButton.Enabled = processedDefinitions.Count > 0;
+                startProcessingButton.Enabled = loadedDefinitions.Count > 0;
             });
         }
     }
@@ -470,14 +471,12 @@ public class DictionaryBuildWindow : Window
     {
         // Sequentially run all steps
         AddLog($"[{DateTime.Now:HH:mm:ss}] Starting full dictionary build pipeline...");
-        this.statusLabel.Text = "Running full build pipeline...";
+        statusLabel.Text = "Running full build pipeline...";
 
         // Step 1: Load
-        await Task.Run(async () =>
-        {
-            try
+        try
             {
-                var mediator = new ProcessMediator(this.appSettings);
+                var mediator = new ProcessMediator(appSettings);
                 await using (mediator)
                 {
                     App?.Invoke(() =>
@@ -485,12 +484,12 @@ public class DictionaryBuildWindow : Window
                         AddLog($"[{DateTime.Now:HH:mm:ss}] Step 1/3: Loading word definitions...");
                     });
                     
-                    this.loadedDefinitions = await mediator.LoadWordDefinitionsJson();
+                    loadedDefinitions = await mediator.LoadWordDefinitionsJson();
                     
                     App?.Invoke(() =>
                     {
-                        this.loadedWordsLabel.Text = $"Loaded: {this.loadedDefinitions.Count:N0} word definitions";
-                        AddLog($"[{DateTime.Now:HH:mm:ss}] Loaded {this.loadedDefinitions.Count:N0} word definitions");
+                        loadedWordsLabel.Text = $"Loaded: {loadedDefinitions.Count:N0} word definitions";
+                        AddLog($"[{DateTime.Now:HH:mm:ss}] Loaded {loadedDefinitions.Count:N0} word definitions");
                     });
                 }
             }
@@ -499,17 +498,17 @@ public class DictionaryBuildWindow : Window
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Error in step 1: {ex.Message}");
-                    this.statusLabel.Text = $"Error: {ex.Message}";
+                    statusLabel.Text = $"Error: {ex.Message}";
                 });
                 return;
             }
 
-            if (this.loadedDefinitions.Count == 0)
+            if (loadedDefinitions.Count == 0)
             {
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] No word definitions to process");
-                    this.statusLabel.Text = "No word definitions found";
+                    statusLabel.Text = "No word definitions found";
                 });
                 return;
             }
@@ -517,7 +516,7 @@ public class DictionaryBuildWindow : Window
             // Step 2: Process
             try
             {
-                var mediator = new ProcessMediator(this.appSettings);
+                var mediator = new ProcessMediator(appSettings);
                 await using (mediator)
                 {
                     App?.Invoke(() =>
@@ -530,11 +529,11 @@ public class DictionaryBuildWindow : Window
                         App?.Invoke(() => UpdateProcessingProgress(p));
                     });
 
-                    this.processedDefinitions = await mediator.RunProcessing(this.loadedDefinitions, progress);
+                    processedDefinitions = await mediator.RunProcessing(loadedDefinitions, progress);
                     
                     App?.Invoke(() =>
                     {
-                        AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {this.processedDefinitions.Count:N0} word definitions");
+                        AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {processedDefinitions.Count:N0} word definitions");
                     });
                 }
             }
@@ -543,7 +542,7 @@ public class DictionaryBuildWindow : Window
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Error in step 2: {ex.Message}");
-                    this.statusLabel.Text = $"Error: {ex.Message}";
+                    statusLabel.Text = $"Error: {ex.Message}";
                 });
                 return;
             }
@@ -551,7 +550,7 @@ public class DictionaryBuildWindow : Window
             // Step 3: Build
             try
             {
-                var mediator = new ProcessMediator(this.appSettings);
+                var mediator = new ProcessMediator(appSettings);
                 await using (mediator)
                 {
                     App?.Invoke(() =>
@@ -564,26 +563,26 @@ public class DictionaryBuildWindow : Window
                         App?.Invoke(() => UpdateBuildProgress(p));
                     });
 
-                    await mediator.RunBuild(this.processedDefinitions, progress);
+                    await mediator.RunBuild(processedDefinitions, progress);
                     
                     App?.Invoke(() =>
                     {
-                        var outputFileName = this.appSettings.ExportKoboDictionaryFileName;
+                        var outputFileName = appSettings.KoboDictionaryFileName;
                         AddLog($"[{DateTime.Now:HH:mm:ss}] Full build pipeline completed!");
                         AddLog($"[{DateTime.Now:HH:mm:ss}] Output file: {outputFileName}");
-                        this.statusLabel.Text = $"Complete! Dictionary saved to {outputFileName}";
-                        this.viewOutputButton.Enabled = true;
-                        this.startProcessingButton.Enabled = true;
-                        this.startBuildButton.Enabled = true;
+                        statusLabel.Text = $"Complete! Dictionary saved to {outputFileName}";
+                        viewOutputButton.Enabled = true;
+                        startProcessingButton.Enabled = true;
+                        startBuildButton.Enabled = true;
                         
-                        NotificationHelper.ShowSuccess(
+                        DialogService.ShowDialog(
+                            App,
                             "Full Pipeline Complete",
                             $"Successfully completed all build steps!\n\n" +
-                            $"• Loaded: {this.loadedDefinitions.Count:N0} definitions\n" +
-                            $"• Processed: {this.processedDefinitions.Count:N0} definitions\n" +
+                            $"• Loaded: {loadedDefinitions.Count:N0} definitions\n" +
+                            $"• Processed: {processedDefinitions.Count:N0} definitions\n" +
                             $"• Output: {outputFileName}\n\n" +
-                            $"Your Kobo dictionary is ready! Copy the ZIP file to your e-reader's '.kobo/dict' folder.",
-                            App);
+                            $"Your Kobo dictionary is ready! Copy the ZIP file to your e-reader's '.kobo/dict' folder.");
                     });
                 }
             }
@@ -592,18 +591,17 @@ public class DictionaryBuildWindow : Window
                 App?.Invoke(() =>
                 {
                     AddLog($"[{DateTime.Now:HH:mm:ss}] Error in step 3: {ex.Message}");
-                    this.statusLabel.Text = $"Error: {ex.Message}";
+                    statusLabel.Text = $"Error: {ex.Message}";
                 });
             }
-        });
     }
 
     private void UpdateProcessingProgress(ProcessingProgress progress)
     {
         var fraction = progress.TotalCount > 0 ? (float)progress.ProcessedCount / progress.TotalCount : 0;
-        this.processingProgressBar.Fraction = Math.Min(fraction, 1.0f);
-        this.processingPercentLabel.Text = $"{progress.PercentComplete:F1}%";
-        this.processingStatusLabel.Text = progress.Status ?? "Processing...";
+        processingProgressBar.Fraction = Math.Min(fraction, 1.0f);
+        processingPercentLabel.Text = $"{progress.PercentComplete:F1}%";
+        processingStatusLabel.Text = progress.Status ?? "Processing...";
 
         if (!string.IsNullOrEmpty(progress.Status))
         {
@@ -614,8 +612,8 @@ public class DictionaryBuildWindow : Window
     private void UpdateBuildProgress(BuildProgress progress)
     {
         var fraction = progress.TotalPrefixes > 0 ? (float)progress.CurrentPrefix / progress.TotalPrefixes : 0;
-        this.buildProgressBar.Fraction = Math.Min(fraction, 1.0f);
-        this.buildPercentLabel.Text = $"{progress.PercentComplete:F1}%";
+        buildProgressBar.Fraction = Math.Min(fraction, 1.0f);
+        buildPercentLabel.Text = $"{progress.PercentComplete:F1}%";
         
         var statusText = new StringBuilder();
         if (!string.IsNullOrEmpty(progress.Status))
@@ -631,7 +629,7 @@ public class DictionaryBuildWindow : Window
             statusText.Append("Building...");
         }
         
-        this.buildStatusLabel.Text = statusText.ToString();
+        buildStatusLabel.Text = statusText.ToString();
 
         if (!string.IsNullOrEmpty(progress.Status))
         {
@@ -641,31 +639,31 @@ public class DictionaryBuildWindow : Window
 
     private void AddLog(string message)
     {
-        this.activityLog.Add(message);
+        activityLog.Add(message);
         
         // Keep last 1000 entries
-        if (this.activityLog.Count > 1000)
+        if (activityLog.Count > 1000)
         {
-            this.activityLog.RemoveAt(0);
+            activityLog.RemoveAt(0);
         }
 
         // Update text view
-        var logText = string.Join("\n", this.activityLog);
-        this.activityLogView.Text = logText;
+        var logText = string.Join("\n", activityLog);
+        activityLogView.Text = logText;
 
         // Auto-scroll to bottom
-        this.activityLogView.MoveEnd();
+        activityLogView.MoveEnd();
     }
 
     private void ViewOutputFile()
     {
-        var outputPath = Path.Combine(AppContext.BaseDirectory, this.appSettings.ExportKoboDictionaryFileName);
+        var outputPath = Path.Combine(AppContext.BaseDirectory, appSettings.KoboDictionaryFileName);
         
         if (File.Exists(outputPath))
         {
             var fileInfo = new FileInfo(outputPath);
             var message = $"Dictionary File Information:\n\n" +
-                         $"File: {this.appSettings.ExportKoboDictionaryFileName}\n" +
+                         $"File: {appSettings.KoboDictionaryFileName}\n" +
                          $"Size: {fileInfo.Length:N0} bytes ({fileInfo.Length / 1024.0:F2} KB)\n" +
                          $"Created: {fileInfo.CreationTime:yyyy-MM-dd HH:mm:ss}\n" +
                          $"Modified: {fileInfo.LastWriteTime:yyyy-MM-dd HH:mm:ss}\n\n" +
@@ -676,7 +674,7 @@ public class DictionaryBuildWindow : Window
         }
         else
         {
-            this.statusLabel.Text = "Output file not found";
+            statusLabel.Text = "Output file not found";
         }
     }
 
@@ -713,5 +711,15 @@ public class DictionaryBuildWindow : Window
 
         dialog.Add(textView, okButton);
         App?.Run(dialog);
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

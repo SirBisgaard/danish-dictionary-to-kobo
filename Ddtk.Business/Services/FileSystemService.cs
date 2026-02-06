@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Ddtk.Business.Helpers;
+using Ddtk.DataAccess;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
 
@@ -16,7 +17,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
     public Task<StreamWriter> GetJsonBackupStream()
     {
         var currentDir = AppContext.BaseDirectory;
-        var path = Path.Combine(currentDir, appSettings.ExportJsonFileName);
+        var path = Path.Combine(currentDir, appSettings.WordDefinitionFile);
 
         if (File.Exists(path))
         {
@@ -32,7 +33,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
     public async Task<List<WordDefinition>> LoadWordDefinitionsJson()
     {
         var currentDir = AppContext.BaseDirectory;
-        var fullPath = Path.Combine(currentDir, appSettings.ExportJsonFileName);
+        var fullPath = Path.Combine(currentDir, appSettings.WordDefinitionFile);
         if (!File.Exists(fullPath))
         {
             logger.Log($" - File not found: {fullPath}");
@@ -158,7 +159,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
 
         // 4) Build the ZIP
         logger.Log(" - Creating Kobo dictionary ZIP file.");
-        using var zipFs = new FileStream(appSettings.ExportKoboDictionaryFileName, FileMode.Create);
+        using var zipFs = new FileStream(appSettings.KoboDictionaryFileName, FileMode.Create);
         using var zip = new ZipArchive(zipFs, ZipArchiveMode.Create);
 
         var countFile = zip.CreateEntry("words.count");
@@ -182,7 +183,7 @@ public class FileSystemService(AppSettings appSettings, LoggingService logger)
         tempDirectory.Delete(true);
 
         logger.Log(
-            $" - Kobo dictionary ZIP file created: {appSettings.ExportKoboDictionaryFileName} ({ToReadableSize(zipFs.Length)})");
+            $" - Kobo dictionary ZIP file created: {appSettings.KoboDictionaryFileName} ({ToReadableSize(zipFs.Length)})");
         logger.Log($" - With {wordList.Count} words and {prefixes.Count} prefixes.");
     }
 

@@ -1,3 +1,4 @@
+using Ddtk.Cli.Services;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
@@ -7,16 +8,16 @@ public class MainMenuBar : MenuBar
 {
     public MainMenuBar(Action<WindowChange> changeWindow)
     {
-        // Create global menu bar at the top (Y = 0)
         var menuItemFile = new MenuBarItem("_File", [
-            new MenuItem("_Dashboard", "- Main dashboard", () => changeWindow(WindowChange.MainWindow)),
-            new MenuItem("Preview _Definition", "- Preview Kobo HTML formatting", () => changeWindow(WindowChange.PreviewWordDefinitionWindow)),
+            new MenuItem("_Dashboard", "- General Overview", () => changeWindow(WindowChange.DashboardWindow)),
             new MenuItem("_EPUB Extractor", "- Extract words from EPUB files", () => changeWindow(WindowChange.EpubWordExtractionWindow)),
-            new MenuItem("_Seeded Words", "- Manage seeded words list", () => changeWindow(WindowChange.SeededWordsWindow)),
             new MenuItem("_Web Scraping", "- Scrape word definitions from web", () => changeWindow(WindowChange.WebScrapingWindow)),
-            new MenuItem("_Build Dictionary", "- Build Kobo dictionary ZIP", () => changeWindow(WindowChange.DictionaryBuildWindow)),
+            new MenuItem("Dictionary _Builder", "- Build Kobo dictionary ZIP", () => changeWindow(WindowChange.DictionaryBuildWindow)),
             null!, // Separator
             new MenuItem("C_onfig", "- Configuration", () => changeWindow(WindowChange.ConfigWindow)),
+            new MenuItem("_Seeded Words", "- Manage seeded words list", () => changeWindow(WindowChange.SeededWordsWindow)),
+            new MenuItem("Preview _Definition", "- Preview Kobo HTML formatting", () => changeWindow(WindowChange.PreviewWordDefinitionWindow)),
+            null!, // Separator
             new MenuItem("_Quit", "- Exit application", () => App?.RequestStop())
         ]);
 

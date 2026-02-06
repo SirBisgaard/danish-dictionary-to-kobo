@@ -1,13 +1,14 @@
 using Ddtk.Business.Helpers;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class PreviewWordDefinitionWindow : Window
+public class PreviewWordDefinitionWindow : BaseWindow
 {
     private readonly AppSettings appSettings;
     private readonly TextField wordInputField;
@@ -42,7 +43,7 @@ public class PreviewWordDefinitionWindow : Window
             Y = 1
         };
 
-        this.wordInputField = new TextField
+        wordInputField = new TextField
         {
             Text = "Hacker",
             X = Pos.Right(wordLabel) + 1,
@@ -53,7 +54,7 @@ public class PreviewWordDefinitionWindow : Window
         Button generateButton = new()
         {
             Text = "Generate Preview",
-            X = Pos.Right(this.wordInputField) + 2,
+            X = Pos.Right(wordInputField) + 2,
             Y = 1
         };
         generateButton.Accepting += (s, e) =>
@@ -72,7 +73,7 @@ public class PreviewWordDefinitionWindow : Window
             Height = Dim.Fill() - 5
         };
 
-        this.rawHtmlView = new TextView
+        rawHtmlView = new TextView
         {
             X = 0,
             Y = 0,
@@ -81,7 +82,7 @@ public class PreviewWordDefinitionWindow : Window
             ReadOnly = true,
             WordWrap = false
         };
-        rawHtmlFrame.Add(this.rawHtmlView);
+        rawHtmlFrame.Add(rawHtmlView);
 
         FrameView humanReadableFrame = new()
         {
@@ -92,7 +93,7 @@ public class PreviewWordDefinitionWindow : Window
             Height = Dim.Fill() - 5
         };
 
-        this.humanReadableView = new TextView
+        humanReadableView = new TextView
         {
             X = 0,
             Y = 0,
@@ -101,7 +102,7 @@ public class PreviewWordDefinitionWindow : Window
             ReadOnly = true,
             WordWrap = true
         };
-        humanReadableFrame.Add(this.humanReadableView);
+        humanReadableFrame.Add(humanReadableView);
 
         // Bottom buttons and status
         Button saveButton = new()
@@ -116,7 +117,7 @@ public class PreviewWordDefinitionWindow : Window
             SaveHtmlToFile();
         };
 
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = "Ready",
             X = Pos.Right(saveButton) + 2,
@@ -124,7 +125,7 @@ public class PreviewWordDefinitionWindow : Window
             Width = Dim.Fill() - 2
         };
 
-        window.Add(wordLabel, this.wordInputField, generateButton, rawHtmlFrame, humanReadableFrame, saveButton, this.statusLabel);
+        window.Add(wordLabel, wordInputField, generateButton, rawHtmlFrame, humanReadableFrame, saveButton, statusLabel);
         Add(menu, window, statusBar);
 
         // Generate initial preview
@@ -135,10 +136,10 @@ public class PreviewWordDefinitionWindow : Window
     {
         try
         {
-            var word = this.wordInputField.Text ?? "Hacker";
+            var word = wordInputField.Text ?? "Hacker";
             if (string.IsNullOrWhiteSpace(word))
             {
-                this.statusLabel.Text = "Error: Word cannot be empty";
+                statusLabel.Text = "Error: Word cannot be empty";
                 return;
             }
 
@@ -146,20 +147,20 @@ public class PreviewWordDefinitionWindow : Window
             var wordDefinition = CreateMockWordDefinition(word);
 
             // Generate HTML
-            var html = WordDefinitionHelper.ToKoboHtml(this.appSettings, wordDefinition);
+            var html = WordDefinitionHelper.ToKoboHtml(appSettings, wordDefinition);
 
             // Display raw HTML
-            this.rawHtmlView.Text = html;
+            rawHtmlView.Text = html;
 
             // Generate human-readable version
             var humanReadable = ConvertToHumanReadable(wordDefinition);
-            this.humanReadableView.Text = humanReadable;
+            humanReadableView.Text = humanReadable;
 
-            this.statusLabel.Text = $"Preview generated for '{word}'";
+            statusLabel.Text = $"Preview generated for '{word}'";
         }
         catch (Exception ex)
         {
-            this.statusLabel.Text = $"Error: {ex.Message}";
+            statusLabel.Text = $"Error: {ex.Message}";
         }
     }
 
@@ -167,37 +168,37 @@ public class PreviewWordDefinitionWindow : Window
     {
         try
         {
-            var html = this.rawHtmlView.Text;
+            var html = rawHtmlView.Text;
             if (string.IsNullOrEmpty(html))
             {
-                this.statusLabel.Text = "Error: No HTML to save";
-                NotificationHelper.ShowWarning(
+                statusLabel.Text = "Error: No HTML to save";
+                DialogService.ShowDialog(
+                    App,
                     "Nothing to Save",
-                    "Please generate a preview first before saving.",
-                    App);
+                    "Please generate a preview first before saving.");
                 return;
             }
 
-            var fileName = this.appSettings.ExportKoboDictionaryTestHtmlFileName;
+            var fileName = appSettings.ExportKoboDictionaryTestHtmlFileName;
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
             
             File.WriteAllText(filePath, html, System.Text.Encoding.UTF8);
             
-            this.statusLabel.Text = $"Saved to: {fileName}";
+            statusLabel.Text = $"Saved to: {fileName}";
             
-            NotificationHelper.ShowSuccess(
+            DialogService.ShowDialog(
+                App,
                 "Preview Saved",
                 $"Successfully saved HTML preview to:\n\n{fileName}\n\n" +
-                $"Location: {AppContext.BaseDirectory}",
-                App);
+                $"Location: {AppContext.BaseDirectory}");
         }
         catch (Exception ex)
         {
-            this.statusLabel.Text = $"Error saving: {ex.Message}";
-            NotificationHelper.ShowError(
+            statusLabel.Text = $"Error saving: {ex.Message}";
+            DialogService.ShowDialog(
+                App,
                 "Save Failed",
-                $"Failed to save HTML preview:\n\n{ex.Message}",
-                App);
+                $"Failed to save HTML preview:\n\n{ex.Message}");
         }
     }
 
@@ -302,5 +303,15 @@ public class PreviewWordDefinitionWindow : Window
         sb.AppendLine($"COPYRIGHT: {wordDefinition.Word}");
         
         return sb.ToString();
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

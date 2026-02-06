@@ -5,9 +5,9 @@ using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class ConfigWindow : Window
+public class ConfigWindow : BaseWindow
 {
     private readonly TextField cultureField;
     private readonly TextField logFileNameField;
@@ -31,7 +31,7 @@ public class ConfigWindow : Window
         BorderStyle = LineStyle.None;
         Arrangement = ViewArrangement.Resizable;
 
-        this.appSettingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+        appSettingsPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
 
         FrameView window = new()
         {
@@ -48,78 +48,78 @@ public class ConfigWindow : Window
 
         // Culture
         window.Add(CreateLabel("Culture:", 2, currentY, labelWidth));
-        this.cultureField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.cultureField);
+        cultureField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(cultureField);
         currentY += 2;
 
         // LogFileName
         window.Add(CreateLabel("Log File Name:", 2, currentY, labelWidth));
-        this.logFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.logFileNameField);
+        logFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(logFileNameField);
         currentY += 2;
 
         // SeedingWordsFileName
         window.Add(CreateLabel("Seeding Words File Name:", 2, currentY, labelWidth));
-        this.seedingWordsFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.seedingWordsFileNameField);
+        seedingWordsFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(seedingWordsFileNameField);
         currentY += 2;
 
         // ExportJsonFileName
         window.Add(CreateLabel("Export JSON File Name:", 2, currentY, labelWidth));
-        this.exportJsonFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.exportJsonFileNameField);
+        exportJsonFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(exportJsonFileNameField);
         currentY += 2;
 
         // ExportKoboDictionaryFileName
         window.Add(CreateLabel("Export Kobo Dictionary File:", 2, currentY, labelWidth));
-        this.exportKoboDictionaryFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.exportKoboDictionaryFileNameField);
+        exportKoboDictionaryFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(exportKoboDictionaryFileNameField);
         currentY += 2;
 
         // ExportKoboDictionaryTestHtmlFileName
         window.Add(CreateLabel("Export Kobo Dictionary Test HTML:", 2, currentY, labelWidth));
-        this.exportKoboDictionaryTestHtmlFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.exportKoboDictionaryTestHtmlFileNameField);
+        exportKoboDictionaryTestHtmlFileNameField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(exportKoboDictionaryTestHtmlFileNameField);
         currentY += 2;
 
         // DictionaryCopyRightText
         window.Add(CreateLabel("Dictionary Copyright Text:", 2, currentY, labelWidth));
-        this.dictionaryCopyRightTextField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.dictionaryCopyRightTextField);
+        dictionaryCopyRightTextField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(dictionaryCopyRightTextField);
         currentY += 2;
 
         // WebScraperBaseAddress
         window.Add(CreateLabel("Web Scraper Base Address:", 2, currentY, labelWidth));
-        this.webScraperBaseAddressField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.webScraperBaseAddressField);
+        webScraperBaseAddressField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(webScraperBaseAddressField);
         currentY += 2;
 
         // WebScraperWordAddress
         window.Add(CreateLabel("Web Scraper Word Address:", 2, currentY, labelWidth));
-        this.webScraperWordAddressField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.webScraperWordAddressField);
+        webScraperWordAddressField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(webScraperWordAddressField);
         currentY += 2;
 
         // WebScraperStartUrl
         window.Add(CreateLabel("Web Scraper Start URL:", 2, currentY, labelWidth));
-        this.webScraperStartUrlField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.webScraperStartUrlField);
+        webScraperStartUrlField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(webScraperStartUrlField);
         currentY += 2;
 
         // WebScraperWorkerCount
         window.Add(CreateLabel("Web Scraper Worker Count:", 2, currentY, labelWidth));
-        this.webScraperWorkerCountField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
-        window.Add(this.webScraperWorkerCountField);
+        webScraperWorkerCountField = CreateTextField(labelWidth + 2, currentY, fieldWidth);
+        window.Add(webScraperWorkerCountField);
 
         // Status label for feedback
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = string.Empty,
             X = 2,
             Y = Pos.AnchorEnd() - 4,
             Width = Dim.Fill() - 4
         };
-        window.Add(this.statusLabel);
+        window.Add(statusLabel);
 
        
 
@@ -195,17 +195,17 @@ public class ConfigWindow : Window
             }
 
             // Populate fields
-            this.cultureField.Text = appSettings.Culture.Name;
-            this.logFileNameField.Text = appSettings.LogFileName;
-            this.seedingWordsFileNameField.Text = appSettings.SeedingWordsFileName;
-            this.exportJsonFileNameField.Text = appSettings.ExportJsonFileName;
-            this.exportKoboDictionaryFileNameField.Text = appSettings.ExportKoboDictionaryFileName;
-            this.exportKoboDictionaryTestHtmlFileNameField.Text = appSettings.ExportKoboDictionaryTestHtmlFileName;
-            this.dictionaryCopyRightTextField.Text = appSettings.DictionaryCopyRightText;
-            this.webScraperBaseAddressField.Text = appSettings.WebScraperBaseAddress.ToString();
-            this.webScraperWordAddressField.Text = appSettings.WebScraperWordAddress.ToString();
-            this.webScraperStartUrlField.Text = appSettings.WebScraperStartUrl.ToString();
-            this.webScraperWorkerCountField.Text = appSettings.WebScraperWorkerCount.ToString();
+            cultureField.Text = appSettings.Culture.Name;
+            logFileNameField.Text = appSettings.LogFileName;
+            seedingWordsFileNameField.Text = appSettings.SeedingWordsFileName;
+            exportJsonFileNameField.Text = appSettings.WordDefinitionFile;
+            exportKoboDictionaryFileNameField.Text = appSettings.KoboDictionaryFileName;
+            exportKoboDictionaryTestHtmlFileNameField.Text = appSettings.ExportKoboDictionaryTestHtmlFileName;
+            dictionaryCopyRightTextField.Text = appSettings.DictionaryCopyRightText;
+            webScraperBaseAddressField.Text = appSettings.WebScraperBaseAddress.ToString();
+            webScraperWordAddressField.Text = appSettings.WebScraperWordAddress.ToString();
+            webScraperStartUrlField.Text = appSettings.WebScraperStartUrl.ToString();
+            webScraperWorkerCountField.Text = appSettings.WebScraperWorkerCount.ToString();
 
             SetStatusMessage("Settings loaded successfully", false);
         }
@@ -220,26 +220,26 @@ public class ConfigWindow : Window
         try
         {
             // Validate worker count
-            if (!int.TryParse(this.webScraperWorkerCountField.Text, out int workerCount) || workerCount <= 0)
+            if (!int.TryParse(webScraperWorkerCountField.Text, out int workerCount) || workerCount <= 0)
             {
                 SetStatusMessage("ERROR: Web Scraper Worker Count must be a positive integer.", true);
                 return;
             }
 
             // Validate URLs
-            if (!Uri.TryCreate(this.webScraperBaseAddressField.Text, UriKind.Absolute, out _))
+            if (!Uri.TryCreate(webScraperBaseAddressField.Text, UriKind.Absolute, out _))
             {
                 SetStatusMessage("ERROR: Web Scraper Base Address must be a valid URL.", true);
                 return;
             }
 
-            if (!Uri.TryCreate(this.webScraperWordAddressField.Text, UriKind.Absolute, out _))
+            if (!Uri.TryCreate(webScraperWordAddressField.Text, UriKind.Absolute, out _))
             {
                 SetStatusMessage("ERROR: Web Scraper Word Address must be a valid URL.", true);
                 return;
             }
 
-            if (!Uri.TryCreate(this.webScraperStartUrlField.Text, UriKind.Absolute, out _))
+            if (!Uri.TryCreate(webScraperStartUrlField.Text, UriKind.Absolute, out _))
             {
                 SetStatusMessage("ERROR: Web Scraper Start URL must be a valid URL.", true);
                 return;
@@ -248,16 +248,16 @@ public class ConfigWindow : Window
             // Create JSON object
             var settings = new Dictionary<string, object>
             {
-                ["Culture"] = this.cultureField.Text ?? string.Empty,
-                ["LogFileName"] = this.logFileNameField.Text ?? string.Empty,
-                ["SeedingWordsFileName"] = this.seedingWordsFileNameField.Text ?? string.Empty,
-                ["ExportJsonFileName"] = this.exportJsonFileNameField.Text ?? string.Empty,
-                ["ExportKoboDictionaryFileName"] = this.exportKoboDictionaryFileNameField.Text ?? string.Empty,
-                ["ExportKoboDictionaryTestHtmlFileName"] = this.exportKoboDictionaryTestHtmlFileNameField.Text ?? string.Empty,
-                ["DictionaryCopyRightText"] = this.dictionaryCopyRightTextField.Text ?? string.Empty,
-                ["WebScraperBaseAddress"] = this.webScraperBaseAddressField.Text ?? string.Empty,
-                ["WebScraperWordAddress"] = this.webScraperWordAddressField.Text ?? string.Empty,
-                ["WebScraperStartUrl"] = this.webScraperStartUrlField.Text ?? string.Empty,
+                ["Culture"] = cultureField.Text ?? string.Empty,
+                ["LogFileName"] = logFileNameField.Text ?? string.Empty,
+                ["SeedingWordsFileName"] = seedingWordsFileNameField.Text ?? string.Empty,
+                ["ExportJsonFileName"] = exportJsonFileNameField.Text ?? string.Empty,
+                ["ExportKoboDictionaryFileName"] = exportKoboDictionaryFileNameField.Text ?? string.Empty,
+                ["ExportKoboDictionaryTestHtmlFileName"] = exportKoboDictionaryTestHtmlFileNameField.Text ?? string.Empty,
+                ["DictionaryCopyRightText"] = dictionaryCopyRightTextField.Text ?? string.Empty,
+                ["WebScraperBaseAddress"] = webScraperBaseAddressField.Text ?? string.Empty,
+                ["WebScraperWordAddress"] = webScraperWordAddressField.Text ?? string.Empty,
+                ["WebScraperStartUrl"] = webScraperStartUrlField.Text ?? string.Empty,
                 ["WebScraperWorkerCount"] = workerCount
             };
 
@@ -269,7 +269,7 @@ public class ConfigWindow : Window
             string json = JsonSerializer.Serialize(settings, options);
 
             // Write to file
-            File.WriteAllText(this.appSettingsPath, json);
+            File.WriteAllText(appSettingsPath, json);
 
             SetStatusMessage("SUCCESS: Settings saved. Please restart the application for changes to take effect.", false);
         }
@@ -288,7 +288,17 @@ public class ConfigWindow : Window
 
     private void SetStatusMessage(string message, bool isError)
     {
-        this.statusLabel.Text = message;
+        statusLabel.Text = message;
         // Terminal.Gui v2 handles coloring differently, keeping simple for now
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

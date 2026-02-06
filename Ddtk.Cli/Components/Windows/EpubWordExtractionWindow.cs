@@ -1,16 +1,16 @@
 using System.Collections.ObjectModel;
 using System.Text;
 using Ddtk.Business.Services;
+using Ddtk.Cli.Services;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
-using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Components.Windows;
 
-public class EpubWordExtractionWindow : Window
+public class EpubWordExtractionWindow : BaseWindow
 {
     private readonly AppSettings appSettings;
     private readonly ListView filesListView;
@@ -91,24 +91,24 @@ public class EpubWordExtractionWindow : Window
             Height = 8
         };
 
-        this.filesListView = new ListView
+        filesListView = new ListView
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        this.filesListView.SetSource(this.selectedFiles);
-        filesFrame.Add(this.filesListView);
+        filesListView.SetSource(selectedFiles);
+        filesFrame.Add(filesListView);
 
         // Extract button
-        this.extractButton = new Button
+        extractButton = new Button
         {
             Text = "Extract Words",
             X = 2,
             Y = Pos.Bottom(filesFrame) + 1
         };
-        this.extractButton.Accepting += (s, e) =>
+        extractButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             ExtractWords();
@@ -122,7 +122,7 @@ public class EpubWordExtractionWindow : Window
             Y = Pos.Bottom(filesFrame) + 3
         };
 
-        this.progressBar = new ProgressBar
+        progressBar = new ProgressBar
         {
             X = Pos.Right(progressTitleLabel) + 1,
             Y = Pos.Bottom(filesFrame) + 3,
@@ -130,7 +130,7 @@ public class EpubWordExtractionWindow : Window
             Height = 1
         };
 
-        this.progressLabel = new Label
+        progressLabel = new Label
         {
             Text = "Ready",
             X = 2,
@@ -139,7 +139,7 @@ public class EpubWordExtractionWindow : Window
         };
 
         // Statistics section
-        this.statsLabel = new Label
+        statsLabel = new Label
         {
             Text = "",
             X = 2,
@@ -149,27 +149,27 @@ public class EpubWordExtractionWindow : Window
         };
 
         // Action buttons
-        this.saveButton = new Button
+        saveButton = new Button
         {
             Text = "Save to Seeding Words",
             X = 2,
             Y = Pos.AnchorEnd() - 3,
             Enabled = false
         };
-        this.saveButton.Accepting += (s, e) =>
+        saveButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             SaveToSeedingWords();
         };
 
-        this.viewWordsButton = new Button
+        viewWordsButton = new Button
         {
             Text = "View Words",
-            X = Pos.Right(this.saveButton) + 2,
+            X = Pos.Right(saveButton) + 2,
             Y = Pos.AnchorEnd() - 3,
             Enabled = false
         };
-        this.viewWordsButton.Accepting += (s, e) =>
+        viewWordsButton.Accepting += (s, e) =>
         {
             e.Handled = true;
             ViewExtractedWords();
@@ -178,7 +178,7 @@ public class EpubWordExtractionWindow : Window
         Button exportButton = new()
         {
             Text = "Export to File",
-            X = Pos.Right(this.viewWordsButton) + 2,
+            X = Pos.Right(viewWordsButton) + 2,
             Y = Pos.AnchorEnd() - 3,
             Enabled = false
         };
@@ -189,7 +189,7 @@ public class EpubWordExtractionWindow : Window
         };
 
         // Status label
-        this.statusLabel = new Label
+        statusLabel = new Label
         {
             Text = "Select EPUB files to extract words",
             X = 2,
@@ -200,11 +200,11 @@ public class EpubWordExtractionWindow : Window
         window.Add(
             selectFilesButton, selectFolderButton, clearButton,
             filesFrame,
-            this.extractButton,
-            progressTitleLabel, this.progressBar, this.progressLabel,
-            this.statsLabel,
-            this.saveButton, this.viewWordsButton, exportButton,
-            this.statusLabel
+            extractButton,
+            progressTitleLabel, progressBar, progressLabel,
+            statsLabel,
+            saveButton, viewWordsButton, exportButton,
+            statusLabel
         );
         
         Add(menu, window, statusBar);
@@ -225,14 +225,14 @@ public class EpubWordExtractionWindow : Window
             foreach (var filePath in openDialog.FilePaths)
             {
                 if (filePath.EndsWith(".epub", StringComparison.OrdinalIgnoreCase) && 
-                    !this.selectedFiles.Contains(filePath))
+                    !selectedFiles.Contains(filePath))
                 {
-                    this.selectedFiles.Add(filePath);
+                    selectedFiles.Add(filePath);
                 }
             }
 
             UpdateFilesList();
-            this.statusLabel.Text = $"Added {openDialog.FilePaths.Count} file(s)";
+            statusLabel.Text = $"Added {openDialog.FilePaths.Count} file(s)";
         }
     }
 
@@ -256,25 +256,25 @@ public class EpubWordExtractionWindow : Window
 
                 foreach (var epubFile in epubFiles)
                 {
-                    if (!this.selectedFiles.Contains(epubFile))
+                    if (!selectedFiles.Contains(epubFile))
                     {
-                        this.selectedFiles.Add(epubFile);
+                        selectedFiles.Add(epubFile);
                         addedCount++;
                     }
                 }
 
                 UpdateFilesList();
-                this.statusLabel.Text = $"Added {addedCount} EPUB file(s) from folder";
+                statusLabel.Text = $"Added {addedCount} EPUB file(s) from folder";
             }
             else
             {
                 // Treat as single file selection
                 if (folderPath.EndsWith(".epub", StringComparison.OrdinalIgnoreCase) && 
-                    !this.selectedFiles.Contains(folderPath))
+                    !selectedFiles.Contains(folderPath))
                 {
-                    this.selectedFiles.Add(folderPath);
+                    selectedFiles.Add(folderPath);
                     UpdateFilesList();
-                    this.statusLabel.Text = "Added 1 file";
+                    statusLabel.Text = "Added 1 file";
                 }
             }
         }
@@ -282,111 +282,111 @@ public class EpubWordExtractionWindow : Window
 
     private void ClearSelection()
     {
-        this.selectedFiles.Clear();
+        selectedFiles.Clear();
         UpdateFilesList();
-        this.extractedWords.Clear();
-        this.progressBar.Fraction = 0;
-        this.progressLabel.Text = "Ready";
-        this.statsLabel.Text = "";
-        this.saveButton.Enabled = false;
-        this.viewWordsButton.Enabled = false;
-        this.statusLabel.Text = "Selection cleared";
+        extractedWords.Clear();
+        progressBar.Fraction = 0;
+        progressLabel.Text = "Ready";
+        statsLabel.Text = "";
+        saveButton.Enabled = false;
+        viewWordsButton.Enabled = false;
+        statusLabel.Text = "Selection cleared";
     }
 
     private void UpdateFilesList()
     {
-        var parentFrame = this.filesListView.SuperView as FrameView;
+        var parentFrame = filesListView.SuperView as FrameView;
         if (parentFrame != null)
         {
-            parentFrame.Title = $"Selected Files ({this.selectedFiles.Count})";
+            parentFrame.Title = $"Selected Files ({selectedFiles.Count})";
         }
 
-        this.extractButton.Enabled = this.selectedFiles.Count > 0 && !this.isExtracting;
+        extractButton.Enabled = selectedFiles.Count > 0 && !isExtracting;
     }
 
     private async void ExtractWords()
     {
-        if (this.selectedFiles.Count == 0 || this.isExtracting)
+        if (selectedFiles.Count == 0 || isExtracting)
         {
             return;
         }
 
-        this.isExtracting = true;
-        this.extractButton.Enabled = false;
-        this.saveButton.Enabled = false;
-        this.viewWordsButton.Enabled = false;
-        this.statusLabel.Text = "Extracting words...";
+        isExtracting = true;
+        extractButton.Enabled = false;
+        saveButton.Enabled = false;
+        viewWordsButton.Enabled = false;
+        statusLabel.Text = "Extracting words...";
 
         try
         {
-            var service = new EpubWordExtractorService(this.appSettings);
+            var service = new EpubWordExtractorService(appSettings);
             var progress = new Progress<EpubExtractionProgress>(p =>
             {
                 App?.Invoke(() =>
                 {
                     var fraction = p.TotalFiles > 0 ? (float)p.FilesProcessed / p.TotalFiles : 0;
-                    this.progressBar.Fraction = fraction;
+                    progressBar.Fraction = fraction;
                     
                     if (!string.IsNullOrEmpty(p.CurrentFile))
                     {
-                        this.progressLabel.Text = $"Processing: {p.CurrentFile}";
+                        progressLabel.Text = $"Processing: {p.CurrentFile}";
                     }
                     else
                     {
-                        this.progressLabel.Text = "Extraction complete";
+                        progressLabel.Text = "Extraction complete";
                     }
 
                     UpdateStats(p.TotalWords, 0, 0, p.FilesProcessed, p.TotalFiles);
                 });
             });
 
-            this.extractedWords = await service.ExtractWordsFromEpubs(
-                this.selectedFiles,
+            extractedWords = await service.ExtractWordsFromEpubs(
+                selectedFiles,
                 progress);
 
             // Load existing words and calculate statistics
-            var existingFilePath = Path.Combine(AppContext.BaseDirectory, this.appSettings.SeedingWordsFileName);
-            var (newWords, existingWords) = await service.MergeWithExisting(this.extractedWords, existingFilePath);
+            var existingFilePath = Path.Combine(AppContext.BaseDirectory, appSettings.SeedingWordsFileName);
+            var (newWords, existingWords) = await service.MergeWithExisting(extractedWords, existingFilePath);
 
             App?.Invoke(() =>
             {
                 UpdateStats(
-                    this.extractedWords.Count,
+                    extractedWords.Count,
                     newWords.Count,
                     existingWords.Count,
-                    this.selectedFiles.Count,
-                    this.selectedFiles.Count);
+                    selectedFiles.Count,
+                    selectedFiles.Count);
 
-                this.statusLabel.Text = $"Extraction complete! Found {this.extractedWords.Count} unique words";
-                this.saveButton.Enabled = true;
-                this.viewWordsButton.Enabled = true;
+                statusLabel.Text = $"Extraction complete! Found {extractedWords.Count} unique words";
+                saveButton.Enabled = true;
+                viewWordsButton.Enabled = true;
                 
-                NotificationHelper.ShowSuccess(
+                DialogService.ShowDialog(
+                    App,
                     "Extraction Complete",
-                    $"Successfully extracted words from {this.selectedFiles.Count} EPUB file(s).\n\n" +
-                    $"• Total unique words: {this.extractedWords.Count:N0}\n" +
+                    $"Successfully extracted words from {selectedFiles.Count} EPUB file(s).\n\n" +
+                    $"• Total unique words: {extractedWords.Count:N0}\n" +
                     $"• New words: {newWords.Count:N0}\n" +
-                    $"• Already known: {existingWords.Count:N0}",
-                    App);
+                    $"• Already known: {existingWords.Count:N0}");
             });
         }
         catch (Exception ex)
         {
             App?.Invoke(() =>
             {
-                this.statusLabel.Text = $"Error: {ex.Message}";
-                NotificationHelper.ShowError(
+                statusLabel.Text = $"Error: {ex.Message}";
+                DialogService.ShowDialog(
+                    App,
                     "Extraction Failed",
-                    $"Failed to extract words from EPUB files:\n\n{ex.Message}",
-                    App);
+                    $"Failed to extract words from EPUB files:\n\n{ex.Message}");
             });
         }
         finally
         {
-            this.isExtracting = false;
+            isExtracting = false;
             App?.Invoke(() =>
             {
-                this.extractButton.Enabled = this.selectedFiles.Count > 0;
+                extractButton.Enabled = selectedFiles.Count > 0;
             });
         }
     }
@@ -394,7 +394,7 @@ public class EpubWordExtractionWindow : Window
     private void UpdateStats(int totalWords, int newWords, int existingWords, int filesProcessed, int totalFiles)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"Processing: {Path.GetFileName(this.progressLabel.Text)}");
+        sb.AppendLine($"Processing: {Path.GetFileName(progressLabel.Text)}");
         sb.AppendLine($"Total words extracted: {totalWords:N0}");
         
         if (newWords > 0 || existingWords > 0)
@@ -404,74 +404,74 @@ public class EpubWordExtractionWindow : Window
         
         sb.AppendLine($"From {filesProcessed} / {totalFiles} files");
         
-        this.statsLabel.Text = sb.ToString();
+        statsLabel.Text = sb.ToString();
     }
 
     private async void SaveToSeedingWords()
     {
-        if (this.extractedWords.Count == 0)
+        if (extractedWords.Count == 0)
         {
-            this.statusLabel.Text = "No words to save";
+            statusLabel.Text = "No words to save";
             return;
         }
 
         try
         {
-            var service = new EpubWordExtractorService(this.appSettings);
-            var filePath = Path.Combine(AppContext.BaseDirectory, this.appSettings.SeedingWordsFileName);
+            var service = new EpubWordExtractorService(appSettings);
+            var filePath = Path.Combine(AppContext.BaseDirectory, appSettings.SeedingWordsFileName);
             
             // Load existing and merge
             var existingWords = await service.LoadExistingWords(filePath);
             var combined = new HashSet<string>(existingWords, StringComparer.OrdinalIgnoreCase);
             
-            foreach (var word in this.extractedWords)
+            foreach (var word in extractedWords)
             {
                 combined.Add(word);
             }
 
             await service.SaveWords(combined, filePath);
             
-            this.statusLabel.Text = $"Saved {combined.Count} words to seeding file";
+            statusLabel.Text = $"Saved {combined.Count} words to seeding file";
             
-            NotificationHelper.ShowSuccess(
+            DialogService.ShowDialog(
+                App,
                 "Saved to Seeding Words",
                 $"Successfully saved words to seeding file.\n\n" +
                 $"• Total words in file: {combined.Count:N0}\n" +
-                $"• File: {this.appSettings.SeedingWordsFileName}",
-                App);
+                $"• File: {appSettings.SeedingWordsFileName}");
         }
         catch (Exception ex)
         {
-            this.statusLabel.Text = $"Error saving: {ex.Message}";
-            NotificationHelper.ShowError(
+            statusLabel.Text = $"Error saving: {ex.Message}";
+            DialogService.ShowDialog(
+                App,
                 "Save Failed",
-                $"Failed to save words to seeding file:\n\n{ex.Message}",
-                App);
+                $"Failed to save words to seeding file:\n\n{ex.Message}");
         }
     }
 
     private void ViewExtractedWords()
     {
-        if (this.extractedWords.Count == 0)
+        if (extractedWords.Count == 0)
         {
-            this.statusLabel.Text = "No words extracted yet";
+            statusLabel.Text = "No words extracted yet";
             return;
         }
 
-        var wordList = this.extractedWords
-            .OrderBy(w => w, StringComparer.Create(this.appSettings.Culture, true))
+        var wordList = extractedWords
+            .OrderBy(w => w, StringComparer.Create(appSettings.Culture, true))
             .Take(100)
             .ToList();
 
         var message = string.Join("\n", wordList);
-        if (this.extractedWords.Count > 100)
+        if (extractedWords.Count > 100)
         {
-            message += $"\n\n... and {this.extractedWords.Count - 100} more words";
+            message += $"\n\n... and {extractedWords.Count - 100} more words";
         }
 
         var dialog = new Dialog
         {
-            Title = $"Extracted Words (showing {Math.Min(100, this.extractedWords.Count)} of {this.extractedWords.Count})",
+            Title = $"Extracted Words (showing {Math.Min(100, extractedWords.Count)} of {extractedWords.Count})",
             Width = Dim.Percent(80),
             Height = Dim.Percent(80)
         };
@@ -504,9 +504,9 @@ public class EpubWordExtractionWindow : Window
 
     private async void ExportToFile()
     {
-        if (this.extractedWords.Count == 0)
+        if (extractedWords.Count == 0)
         {
-            this.statusLabel.Text = "No words to export";
+            statusLabel.Text = "No words to export";
             return;
         }
 
@@ -516,24 +516,34 @@ public class EpubWordExtractionWindow : Window
             var fileName = $"extracted_words_{timestamp}.txt";
             var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
             
-            var service = new EpubWordExtractorService(this.appSettings);
-            await service.SaveWords(this.extractedWords, filePath);
+            var service = new EpubWordExtractorService(appSettings);
+            await service.SaveWords(extractedWords, filePath);
             
-            this.statusLabel.Text = $"Exported {this.extractedWords.Count} words to {fileName}";
+            statusLabel.Text = $"Exported {extractedWords.Count} words to {fileName}";
             
-            NotificationHelper.ShowSuccess(
+            DialogService.ShowDialog(
+                App,
                 "Export Successful",
-                $"Successfully exported {this.extractedWords.Count:N0} words to:\n\n{fileName}\n\n" +
-                $"Location: {AppContext.BaseDirectory}",
-                App);
+                $"Successfully exported {extractedWords.Count:N0} words to:\n\n{fileName}\n\n" +
+                $"Location: {AppContext.BaseDirectory}");
         }
         catch (Exception ex)
         {
-            this.statusLabel.Text = $"Error exporting: {ex.Message}";
-            NotificationHelper.ShowError(
+            statusLabel.Text = $"Error exporting: {ex.Message}";
+            DialogService.ShowDialog(
+                App,
                 "Export Failed",
-                $"Failed to export words:\n\n{ex.Message}",
-                App);
+                $"Failed to export words:\n\n{ex.Message}");
         }
+    }
+
+    public override void InitializeLayout()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void LoadData()
+    {
+        throw new NotImplementedException();
     }
 }

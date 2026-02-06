@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -121,7 +120,7 @@ public class EpubWordExtractorService
     /// <param name="filePath">Path to save the words to</param>
     public async Task SaveWords(HashSet<string> words, string filePath)
     {
-        var orderedWords = words.OrderBy(w => w, StringComparer.Create(this.appSettings.Culture, true));
+        var orderedWords = words.OrderBy(w => w, StringComparer.Create(appSettings.Culture, true));
         var content = string.Join(";", orderedWords);
         await File.WriteAllTextAsync(filePath, content, Encoding.UTF8);
     }
@@ -219,7 +218,7 @@ public class EpubWordExtractorService
 
         foreach (var textNode in textNodes)
         {
-            var matches = this.wordRegex.Matches(textNode);
+            var matches = wordRegex.Matches(textNode);
             foreach (Match match in matches)
             {
                 wordSet.Add(match.Value.ToLowerInvariant());
