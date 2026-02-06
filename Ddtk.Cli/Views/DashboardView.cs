@@ -1,13 +1,12 @@
-using System.Reactive.Linq;
-using Ddtk.Cli.Components;
 using Ddtk.Cli.Services;
 using Ddtk.Cli.ViewModels;
+using Ddtk.Cli.Views.Components;
 using ReactiveUI;
 using Terminal.Gui.Drawing;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Views.Windows;
+namespace Ddtk.Cli.Views;
 
 public class DashboardView : BaseView<DashboardViewModel>
 {

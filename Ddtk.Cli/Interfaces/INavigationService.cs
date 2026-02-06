@@ -1,6 +1,6 @@
-using Terminal.Gui.App;
+using Ddtk.Cli.Services;
 
-namespace Ddtk.Cli.Services;
+namespace Ddtk.Cli.Interfaces;
 
 /// <summary>
 /// Service for navigating between windows in the application.
@@ -8,13 +8,6 @@ namespace Ddtk.Cli.Services;
 /// </summary>
 public interface INavigationService
 {
-    /// <summary>
-    /// Initialize the navigation service with the Terminal.Gui application instance.
-    /// Must be called before any navigation occurs.
-    /// </summary>
-    /// <param name="app">The Terminal.Gui application instance</param>
-    void Initialize(IApplication app);
-    
     /// <summary>
     /// Navigate to the specified window.
     /// </summary>

@@ -1,8 +1,9 @@
+using Ddtk.Cli.Interfaces;
 using Ddtk.Cli.Services;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Views.Components;
 
 public class MainMenuBar : MenuBar
 {

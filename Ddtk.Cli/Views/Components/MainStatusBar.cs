@@ -1,7 +1,6 @@
-using Terminal.Gui.Input;
 using Terminal.Gui.Views;
 
-namespace Ddtk.Cli.Components;
+namespace Ddtk.Cli.Views.Components;
 
 public class MainStatusBar : StatusBar
 {
