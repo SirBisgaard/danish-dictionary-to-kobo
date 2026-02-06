@@ -10,6 +10,7 @@ namespace Ddtk.Cli.ViewModels;
 public class WebScrapingViewModel : ViewModelBase, IDisposable
 {
     private readonly AppSettings appSettings;
+    private readonly ProcessMediator processMediator;
     private CancellationTokenSource? cancellationTokenSource;
     
     // Observable properties
@@ -80,9 +81,10 @@ public class WebScrapingViewModel : ViewModelBase, IDisposable
     public ReactiveCommand<Unit, Unit> StopScrapingCommand { get; }
     public ReactiveCommand<Unit, Unit> SaveResultsCommand { get; }
     
-    public WebScrapingViewModel(AppSettings appSettings)
+    public WebScrapingViewModel(AppSettings appSettings, ProcessMediator processMediator)
     {
         this.appSettings = appSettings;
+        this.processMediator = processMediator;
         
         // Initialize worker count from settings
         WorkerCount = appSettings.WebScraperWorkerCount;
@@ -146,46 +148,42 @@ public class WebScrapingViewModel : ViewModelBase, IDisposable
         
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Load seeding words
+            string[] seedingWords;
+            if (options.UseSeededWords)
             {
-                // Load seeding words
-                string[] seedingWords;
-                if (options.UseSeededWords)
-                {
-                    seedingWords = await mediator.LoadSeedingWords();
-                    AddLog($"[{DateTime.Now:HH:mm:ss}] Loaded {seedingWords.Length} seeding words");
-                }
-                else
-                {
-                    seedingWords = [];
-                    AddLog($"[{DateTime.Now:HH:mm:ss}] Starting with empty word list");
-                }
-                
-                // Create progress reporter
-                var progress = new Progress<ScrapingProgress>(p =>
-                {
-                    UpdateProgress(p);
-                });
-                
-                // Start scraping
-                var results = await mediator.RunScraping(
-                    seedingWords,
-                    options,
-                    progress,
-                    cancellationTokenSource.Token);
-                
-                AddLog($"[{DateTime.Now:HH:mm:ss}] Scraping completed!");
-                AddLog($"[{DateTime.Now:HH:mm:ss}] Total words scraped: {results.Count}");
-                StatusMessage = $"Scraping complete! {results.Count} words scraped";
-                SaveResultsEnabled = true;
-                
-                ShowDialog(
-                    "Scraping Complete",
-                    $"Successfully scraped word definitions from ordnet.dk.\n\n" +
-                    $"• Total definitions scraped: {results.Count:N0}\n" +
-                    $"• Saved to: {appSettings.WordDefinitionFileName}");
+                seedingWords = await processMediator.LoadSeedingWords();
+                AddLog($"[{DateTime.Now:HH:mm:ss}] Loaded {seedingWords.Length} seeding words");
             }
+            else
+            {
+                seedingWords = [];
+                AddLog($"[{DateTime.Now:HH:mm:ss}] Starting with empty word list");
+            }
+            
+            // Create progress reporter
+            var progress = new Progress<ScrapingProgress>(p =>
+            {
+                UpdateProgress(p);
+            });
+            
+            // Start scraping
+            var results = await processMediator.RunScraping(
+                seedingWords,
+                options,
+                progress,
+                cancellationTokenSource.Token);
+            
+            AddLog($"[{DateTime.Now:HH:mm:ss}] Scraping completed!");
+            AddLog($"[{DateTime.Now:HH:mm:ss}] Total words scraped: {results.Count}");
+            StatusMessage = $"Scraping complete! {results.Count} words scraped";
+            SaveResultsEnabled = true;
+            
+            ShowDialog(
+                "Scraping Complete",
+                $"Successfully scraped word definitions from ordnet.dk.\n\n" +
+                $"• Total definitions scraped: {results.Count:N0}\n" +
+                $"• Saved to: {appSettings.WordDefinitionFileName}");
         }
         catch (OperationCanceledException)
         {

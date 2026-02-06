@@ -11,6 +11,7 @@ namespace Ddtk.Cli.ViewModels;
 public class SeededWordsViewModel : ViewModelBase
 {
     private readonly AppSettings appSettings;
+    private readonly ProcessMediator processMediator;
     
     // Properties
     private string searchText = string.Empty;
@@ -52,9 +53,10 @@ public class SeededWordsViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ClearSearchCommand { get; }
     public ReactiveCommand<Unit, Unit> ExportCommand { get; }
     
-    public SeededWordsViewModel(AppSettings appSettings)
+    public SeededWordsViewModel(AppSettings appSettings, ProcessMediator processMediator)
     {
         this.appSettings = appSettings;
+        this.processMediator = processMediator;
         
         LoadWordsCommand = ReactiveCommand.CreateFromTask(LoadWordsAsync);
         ClearSearchCommand = ReactiveCommand.Create(() => { SearchText = string.Empty; });
@@ -71,14 +73,14 @@ public class SeededWordsViewModel : ViewModelBase
             IsBusy = true;
             StatusMessage = "Loading words...";
             
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
-                var words = await mediator.LoadSeedingWords();
+                var words = await processMediator.LoadSeedingWords();
                 allWords = [.. words.OrderBy(w => w, StringComparer.Create(appSettings.Culture, true))];
                 
                 // Load statistics
-                var wordDefinitions = await mediator.LoadWordDefinitionsJson();
+                var wordDefinitions = await processMediator.LoadWordDefinitionsJson();
                 var processedSet = new HashSet<string>(
                     wordDefinitions.Select(wd => wd.Word.ToLowerInvariant()),
                     StringComparer.OrdinalIgnoreCase);

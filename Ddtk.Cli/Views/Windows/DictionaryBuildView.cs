@@ -48,6 +48,10 @@ public class DictionaryBuildView : BaseView<DictionaryBuildViewModel>
         InitializeComponents(window);
         
         Add(menu, window, statusBar);
+        
+        // Initialize and bind after layout is set up
+        InitializeLayout();
+        BindViewModel();
     }
 
     public override void InitializeLayout()

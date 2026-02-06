@@ -33,6 +33,13 @@ public class DashboardView : BaseView<DashboardViewModel>
     {
         this.mainMenu = mainMenu;
         this.statusBar = statusBar;
+        
+        // Initialize immediately in constructor
+        InitializeLayout();
+        BindViewModel();
+        
+        // Start async data loading
+        Task.Run(() => viewModel.LoadDashboardDataAsync(false));
     }
     
     public override void InitializeLayout()

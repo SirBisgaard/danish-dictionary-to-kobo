@@ -11,11 +11,11 @@ public class ProcessMediator : IAsyncDisposable
     private readonly LoggingService logger;
     private readonly FileSystemService fileSystemService;
 
-    public ProcessMediator(AppSettings appSettings)
+    public ProcessMediator(AppSettings appSettings, LoggingService logger, FileSystemService fileSystemService)
     {
         this.appSettings = appSettings;
-        logger = new LoggingService(appSettings);
-        fileSystemService = new FileSystemService(appSettings, logger);
+        this.logger = logger;
+        this.fileSystemService = fileSystemService;
     }
 
     /// <summary>

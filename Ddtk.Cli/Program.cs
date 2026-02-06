@@ -1,5 +1,12 @@
-﻿using Ddtk.Business.Services;
+using Ddtk.Business;
+using Ddtk.Business.Helpers;
+using Ddtk.Business.Services;
+using Ddtk.Cli.Components;
+using Ddtk.Cli.Helpers;
 using Ddtk.Cli.Services;
+using Ddtk.Cli.ViewModels;
+using Ddtk.Cli.Views.Windows;
+using Ddtk.DataAccess;
 using Ddtk.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,26 +27,59 @@ if (appSettings == null)
 var host = Host.CreateDefaultBuilder()
     .ConfigureServices((_, services) =>
     {
-        // Config
+        // Configuration
         services.AddSingleton(appSettings);
         
-        // Services
-        services.AddTransient<TerminalOrchestrator>();
-
-        // Windows
+        // Singleton Services (live for entire application lifetime)
+        services.AddSingleton<LoggingService>();
+        services.AddSingleton<FileSystemRepository>();
+        services.AddSingleton<DataStatusService>();
         
+        // Navigation Service (singleton, manages app navigation)
+        services.AddSingleton<INavigationService, NavigationService>();
         
-        // Other
+        // Transient Services (new instance per request)
+        services.AddTransient<ProcessMediator>();
+        services.AddTransient<FileSystemService>();
+        services.AddTransient<EpubWordExtractorService>();
+        services.AddTransient<WindowDataHelper>();
+        
+        // UI Components (new instance per window)
+        services.AddTransient<MainMenuBar>();
+        services.AddTransient<MainStatusBar>();
+        
+        // ViewModels (new instance per view)
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<WebScrapingViewModel>();
+        services.AddTransient<DictionaryBuildViewModel>();
+        services.AddTransient<EpubWordExtractionViewModel>();
+        services.AddTransient<SeededWordsViewModel>();
+        services.AddTransient<PreviewWordDefinitionViewModel>();
+        services.AddTransient<ConfigViewModel>();
+        
+        // Views (new instance per window navigation)
+        services.AddTransient<DashboardView>();
+        services.AddTransient<WebScrapingView>();
+        services.AddTransient<DictionaryBuildView>();
+        services.AddTransient<EpubWordExtractionView>();
+        services.AddTransient<SeededWordsView>();
+        services.AddTransient<PreviewWordDefinitionView>();
+        services.AddTransient<ConfigView>();
+        
+        // Orchestrator (singleton for app lifetime)
+        services.AddSingleton<TerminalOrchestrator>();
+        
+        // Logging
         services.AddLogging(builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddConsole();
-            }
-        );
+        {
+            builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddConsole();
+        });
     })
     .Build();
 
-using var tui = ActivatorUtilities.CreateInstance<TerminalOrchestrator>(host.Services);
-tui.InitApp();
+// Start application with DI-resolved orchestrator
+var orchestrator = host.Services.GetRequiredService<TerminalOrchestrator>();
+orchestrator.InitApp();

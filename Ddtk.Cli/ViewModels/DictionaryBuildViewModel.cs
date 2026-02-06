@@ -10,6 +10,7 @@ namespace Ddtk.Cli.ViewModels;
 public class DictionaryBuildViewModel : ViewModelBase
 {
     private readonly AppSettings appSettings;
+    private readonly ProcessMediator processMediator;
     private List<WordDefinition> loadedDefinitions = [];
     private List<WordDefinition> processedDefinitions = [];
 
@@ -110,9 +111,10 @@ public class DictionaryBuildViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> BuildAllCommand { get; }
     public ReactiveCommand<Unit, Unit> ViewOutputCommand { get; }
 
-    public DictionaryBuildViewModel(AppSettings appSettings)
+    public DictionaryBuildViewModel(AppSettings appSettings, ProcessMediator processMediator)
     {
         this.appSettings = appSettings;
+        this.processMediator = processMediator;
 
         LoadCommand = ReactiveCommand.CreateFromTask(LoadWordDefinitionsAsync);
         StartProcessingCommand = ReactiveCommand.CreateFromTask(
@@ -140,10 +142,10 @@ public class DictionaryBuildViewModel : ViewModelBase
             AddLog($"[{DateTime.Now:HH:mm:ss}] Loading word definitions from JSON...");
             StatusMessage = "Loading word definitions...";
 
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
-                loadedDefinitions = await mediator.LoadWordDefinitionsJson();
+                loadedDefinitions = await processMediator.LoadWordDefinitionsJson();
 
                 LoadedWordsText = $"Loaded: {loadedDefinitions.Count:N0} word definitions";
                 CanStartProcessing = loadedDefinitions.Count > 0;
@@ -175,15 +177,15 @@ public class DictionaryBuildViewModel : ViewModelBase
 
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
                 var progress = new Progress<ProcessingProgress>(p =>
                 {
                     UpdateProcessingProgress(p);
                 });
 
-                processedDefinitions = await mediator.RunProcessing(loadedDefinitions, progress);
+                processedDefinitions = await processMediator.RunProcessing(loadedDefinitions, progress);
 
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Processing completed!");
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {processedDefinitions.Count:N0} word definitions");
@@ -229,15 +231,15 @@ public class DictionaryBuildViewModel : ViewModelBase
 
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
                 var progress = new Progress<BuildProgress>(p =>
                 {
                     UpdateBuildProgress(p);
                 });
 
-                await mediator.RunBuild(processedDefinitions, progress);
+                await processMediator.RunBuild(processedDefinitions, progress);
 
                 var outputFileName = appSettings.KoboDictionaryFileName;
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Build completed!");
@@ -279,12 +281,12 @@ public class DictionaryBuildViewModel : ViewModelBase
         // Step 1: Load
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Step 1/3: Loading word definitions...");
 
-                loadedDefinitions = await mediator.LoadWordDefinitionsJson();
+                loadedDefinitions = await processMediator.LoadWordDefinitionsJson();
 
                 LoadedWordsText = $"Loaded: {loadedDefinitions.Count:N0} word definitions";
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Loaded {loadedDefinitions.Count:N0} word definitions");
@@ -307,8 +309,8 @@ public class DictionaryBuildViewModel : ViewModelBase
         // Step 2: Process
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Step 2/3: Processing word definitions...");
 
@@ -317,7 +319,7 @@ public class DictionaryBuildViewModel : ViewModelBase
                     UpdateProcessingProgress(p);
                 });
 
-                processedDefinitions = await mediator.RunProcessing(loadedDefinitions, progress);
+                processedDefinitions = await processMediator.RunProcessing(loadedDefinitions, progress);
 
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Processed {processedDefinitions.Count:N0} word definitions");
             }
@@ -332,8 +334,8 @@ public class DictionaryBuildViewModel : ViewModelBase
         // Step 3: Build
         try
         {
-            var mediator = new ProcessMediator(appSettings);
-            await using (mediator)
+            // Use injected processMediator
+            // Mediator is now managed by DI
             {
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Step 3/3: Building Kobo dictionary ZIP...");
 
@@ -342,7 +344,7 @@ public class DictionaryBuildViewModel : ViewModelBase
                     UpdateBuildProgress(p);
                 });
 
-                await mediator.RunBuild(processedDefinitions, progress);
+                await processMediator.RunBuild(processedDefinitions, progress);
 
                 var outputFileName = appSettings.KoboDictionaryFileName;
                 AddLog($"[{DateTime.Now:HH:mm:ss}] Full build pipeline completed!");

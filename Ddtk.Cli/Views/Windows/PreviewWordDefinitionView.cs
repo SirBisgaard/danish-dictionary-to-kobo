@@ -25,6 +25,10 @@ public class PreviewWordDefinitionView : BaseView<PreviewWordDefinitionViewModel
     {
         this.mainMenu = mainMenu;
         this.statusBar = statusBar;
+        
+        // Initialize immediately in constructor
+        InitializeLayout();
+        BindViewModel();
     }
     
     public override void InitializeLayout()

@@ -27,6 +27,10 @@ public class SeededWordsView : BaseView<SeededWordsViewModel>
     {
         this.mainMenu = mainMenu;
         this.statusBar = statusBar;
+        
+        // Initialize immediately in constructor
+        InitializeLayout();
+        BindViewModel();
     }
     
     public override void InitializeLayout()
