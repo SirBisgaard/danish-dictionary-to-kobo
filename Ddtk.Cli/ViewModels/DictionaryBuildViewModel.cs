@@ -15,90 +15,78 @@ public class DictionaryBuildViewModel : ViewModelBase
     private List<WordDefinition> processedDefinitions = [];
 
     // Step 1: Load
-    private string loadedWordsText = "Loaded: 0 word definitions";
     public string LoadedWordsText
     {
-        get => loadedWordsText;
-        set => this.RaiseAndSetIfChanged(ref loadedWordsText, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Loaded: 0 word definitions";
 
-    private bool canStartProcessing;
     public bool CanStartProcessing
     {
-        get => canStartProcessing;
-        set => this.RaiseAndSetIfChanged(ref canStartProcessing, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     // Step 2: Processing
-    private float processingFraction;
     public float ProcessingFraction
     {
-        get => processingFraction;
-        set => this.RaiseAndSetIfChanged(ref processingFraction, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private string processingPercent = "0%";
     public string ProcessingPercent
     {
-        get => processingPercent;
-        set => this.RaiseAndSetIfChanged(ref processingPercent, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "0%";
 
-    private string processingStatus = "Not started";
     public string ProcessingStatus
     {
-        get => processingStatus;
-        set => this.RaiseAndSetIfChanged(ref processingStatus, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Not started";
 
-    private bool isProcessing;
     public bool IsProcessing
     {
-        get => isProcessing;
-        set => this.RaiseAndSetIfChanged(ref isProcessing, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private bool canStartBuild;
     public bool CanStartBuild
     {
-        get => canStartBuild;
-        set => this.RaiseAndSetIfChanged(ref canStartBuild, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     // Step 3: Build
-    private float buildFraction;
     public float BuildFraction
     {
-        get => buildFraction;
-        set => this.RaiseAndSetIfChanged(ref buildFraction, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private string buildPercent = "0%";
     public string BuildPercent
     {
-        get => buildPercent;
-        set => this.RaiseAndSetIfChanged(ref buildPercent, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "0%";
 
-    private string buildStatus = "Not started";
     public string BuildStatus
     {
-        get => buildStatus;
-        set => this.RaiseAndSetIfChanged(ref buildStatus, value);
-    }
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Not started";
 
-    private bool isBuilding;
     public bool IsBuilding
     {
-        get => isBuilding;
-        set => this.RaiseAndSetIfChanged(ref isBuilding, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    private bool canViewOutput;
     public bool CanViewOutput
     {
-        get => canViewOutput;
-        set => this.RaiseAndSetIfChanged(ref canViewOutput, value);
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
     // Activity Log

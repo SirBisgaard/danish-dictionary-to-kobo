@@ -1,7 +1,10 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Text;
+using Ddtk.Business.Interfaces;
+using Ddtk.Business.Models;
 using Ddtk.Business.Services;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
@@ -11,73 +14,63 @@ namespace Ddtk.Cli.ViewModels;
 
 public class EpubWordExtractionViewModel : ViewModelBase
 {
-    private readonly AppSettings appSettings;
-    
-    // Properties
-    private ObservableCollection<string> selectedFiles = [];
+    private readonly ISeedingWordService seedingWordService;
+
     public ObservableCollection<string> SelectedFiles
     {
-        get => selectedFiles;
-        set => this.RaiseAndSetIfChanged(ref selectedFiles, value);
-    }
-    
-    private string filesFrameTitle = "Selected Files (0)";
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = [];
+
     public string FilesFrameTitle
     {
-        get => filesFrameTitle;
-        set => this.RaiseAndSetIfChanged(ref filesFrameTitle, value);
-    }
-    
-    private float progressFraction = 0f;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Selected Files (0)";
+
     public float ProgressFraction
     {
-        get => progressFraction;
-        set => this.RaiseAndSetIfChanged(ref progressFraction, value);
-    }
-    
-    private string progressText = "Ready";
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = 0f;
+
     public string ProgressText
     {
-        get => progressText;
-        set => this.RaiseAndSetIfChanged(ref progressText, value);
-    }
-    
-    private string statistics = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Ready";
+
     public string Statistics
     {
-        get => statistics;
-        set => this.RaiseAndSetIfChanged(ref statistics, value);
-    }
-    
-    private bool canExtract = false;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public bool CanExtract
     {
-        get => canExtract;
-        set => this.RaiseAndSetIfChanged(ref canExtract, value);
-    }
-    
-    private bool canSave = false;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = false;
+
     public bool CanSave
     {
-        get => canSave;
-        set => this.RaiseAndSetIfChanged(ref canSave, value);
-    }
-    
-    private bool canViewWords = false;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = false;
+
     public bool CanViewWords
     {
-        get => canViewWords;
-        set => this.RaiseAndSetIfChanged(ref canViewWords, value);
-    }
-    
-    private bool canExport = false;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = false;
+
     public bool CanExport
     {
-        get => canExport;
-        set => this.RaiseAndSetIfChanged(ref canExport, value);
-    }
-    
-    private HashSet<string> extractedWords = [];
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = false;
+
+    private string[] extractedWords = [];
     private bool isExtracting;
     
     // Events for file dialogs (Views will handle these)
@@ -92,11 +85,10 @@ public class EpubWordExtractionViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> ExtractWordsCommand { get; }
     public ReactiveCommand<Unit, Unit> SaveToSeedingWordsCommand { get; }
     public ReactiveCommand<Unit, Unit> ViewWordsCommand { get; }
-    public ReactiveCommand<Unit, Unit> ExportCommand { get; }
     
-    public EpubWordExtractionViewModel(AppSettings appSettings)
+    public EpubWordExtractionViewModel(ISeedingWordService seedingWordService)
     {
-        this.appSettings = appSettings;
+        this.seedingWordService = seedingWordService;
         
         SelectFilesCommand = ReactiveCommand.Create(() => SelectFilesRequested?.Invoke(this, EventArgs.Empty));
         SelectFolderCommand = ReactiveCommand.Create(() => SelectFolderRequested?.Invoke(this, EventArgs.Empty));
@@ -107,10 +99,6 @@ public class EpubWordExtractionViewModel : ViewModelBase
             this.WhenAnyValue(vm => vm.CanSave));
         ViewWordsCommand = ReactiveCommand.Create(ViewWords,
             this.WhenAnyValue(vm => vm.CanViewWords));
-        ExportCommand = ReactiveCommand.CreateFromTask(ExportToFileAsync,
-            this.WhenAnyValue(vm => vm.CanExport));
-        
-        StatusMessage = "Select EPUB files to extract words";
     }
     
     public void AddFiles(IEnumerable<string> filePaths)
@@ -127,7 +115,6 @@ public class EpubWordExtractionViewModel : ViewModelBase
         }
         
         UpdateFilesList();
-        StatusMessage = $"Added {addedCount} file(s)";
     }
     
     public void AddFilesFromFolder(string folderPath)
@@ -147,7 +134,6 @@ public class EpubWordExtractionViewModel : ViewModelBase
             }
             
             UpdateFilesList();
-            StatusMessage = $"Added {addedCount} EPUB file(s) from folder";
         }
         else
         {
@@ -157,7 +143,6 @@ public class EpubWordExtractionViewModel : ViewModelBase
             {
                 SelectedFiles.Add(folderPath);
                 UpdateFilesList();
-                StatusMessage = "Added 1 file";
             }
         }
     }
@@ -166,14 +151,13 @@ public class EpubWordExtractionViewModel : ViewModelBase
     {
         SelectedFiles.Clear();
         UpdateFilesList();
-        extractedWords.Clear();
+        extractedWords = [];
         ProgressFraction = 0;
         ProgressText = "Ready";
         Statistics = "";
         CanSave = false;
         CanViewWords = false;
         CanExport = false;
-        StatusMessage = "Selection cleared";
     }
     
     private void UpdateFilesList()
@@ -194,11 +178,9 @@ public class EpubWordExtractionViewModel : ViewModelBase
         CanSave = false;
         CanViewWords = false;
         CanExport = false;
-        StatusMessage = "Extracting words...";
         
         try
         {
-            var service = new EpubWordExtractorService(appSettings);
             var progress = new Progress<EpubExtractionProgress>(p =>
             {
                 var fraction = p.TotalFiles > 0 ? (float)p.FilesProcessed / p.TotalFiles : 0;
@@ -216,22 +198,21 @@ public class EpubWordExtractionViewModel : ViewModelBase
                 UpdateStats(p.TotalWords, 0, 0, p.FilesProcessed, p.TotalFiles);
             });
             
-            extractedWords = await service.ExtractWordsFromEpubs(
-                SelectedFiles,
+            extractedWords = await seedingWordService.ExtractWordsFromFiles(
+                SelectedFiles.ToArray(),
                 progress);
+            var existingWords = await seedingWordService.LoadSeedingWords();
+            var newWordsCount = existingWords.GetNewWordsCount(new SeedingWordCollection(extractedWords));
             
-            // Load existing words and calculate statistics
-            var existingFilePath = Path.Combine(AppContext.BaseDirectory, appSettings.SeedingWordsFileName);
-            var (newWords, existingWords) = await service.MergeWithExisting(extractedWords, existingFilePath);
             
             UpdateStats(
-                extractedWords.Count,
-                newWords.Count,
+                extractedWords.Length,
+                newWordsCount,
                 existingWords.Count,
                 SelectedFiles.Count,
                 SelectedFiles.Count);
             
-            StatusMessage = $"Extraction complete! Found {extractedWords.Count} unique words";
+            StatusMessage = $"Extraction complete! Found {extractedWords.Length} unique words";
             CanSave = true;
             CanViewWords = true;
             CanExport = true;
@@ -239,13 +220,12 @@ public class EpubWordExtractionViewModel : ViewModelBase
             ShowDialog(
                 "Extraction Complete",
                 $"Successfully extracted words from {SelectedFiles.Count} EPUB file(s).\n\n" +
-                $"• Total unique words: {extractedWords.Count:N0}\n" +
-                $"• New words: {newWords.Count:N0}\n" +
+                $"• Total unique words: {extractedWords.Length:N0}\n" +
+                $"• New words: {newWordsCount:N0}\n" +
                 $"• Already known: {existingWords.Count:N0}");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Error: {ex.Message}";
             ShowDialog("Extraction Failed", $"Failed to extract words from EPUB files:\n\n{ex.Message}");
         }
         finally
@@ -272,96 +252,52 @@ public class EpubWordExtractionViewModel : ViewModelBase
     
     private async Task SaveToSeedingWordsAsync()
     {
-        if (extractedWords.Count == 0)
+        if (extractedWords.Length == 0)
         {
-            StatusMessage = "No words to save";
             return;
         }
         
         try
         {
-            var service = new EpubWordExtractorService(appSettings);
-            var filePath = Path.Combine(AppContext.BaseDirectory, appSettings.SeedingWordsFileName);
-            
             // Load existing and merge
-            var existingWords = await service.LoadExistingWords(filePath);
-            var combined = new HashSet<string>(existingWords, StringComparer.OrdinalIgnoreCase);
+            var existingWords = await seedingWordService.LoadSeedingWords();
+            existingWords.AddWords(extractedWords);
+            await seedingWordService.SaveSeedingWords(existingWords);
             
-            foreach (var word in extractedWords)
-            {
-                combined.Add(word);
-            }
-            
-            await service.SaveWords(combined, filePath);
-            
-            StatusMessage = $"Saved {combined.Count} words to seeding file";
             
             ShowDialog(
                 "Saved to Seeding Words",
                 $"Successfully saved words to seeding file.\n\n" +
-                $"• Total words in file: {combined.Count:N0}\n" +
-                $"• File: {appSettings.SeedingWordsFileName}");
+                $"• Total words in file: {existingWords.Count:N0}\n" +
+                $"• File: {seedingWordService.GetSeedingWordsFileName()}");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Error saving: {ex.Message}";
             ShowDialog("Save Failed", $"Failed to save words to seeding file:\n\n{ex.Message}");
         }
     }
     
     private void ViewWords()
     {
-        if (extractedWords.Count == 0)
+        if (extractedWords.Length == 0)
         {
-            StatusMessage = "No words extracted yet";
             return;
         }
         
         var wordList = extractedWords
-            .OrderBy(w => w, StringComparer.Create(appSettings.Culture, true))
+            .OrderBy(w => w, StringComparer.Create(CultureInfo.CurrentCulture, true))
             .Take(100)
             .ToList();
         
         var message = string.Join("\n", wordList);
-        if (extractedWords.Count > 100)
+        if (extractedWords.Length > 100)
         {
-            message += $"\n\n... and {extractedWords.Count - 100} more words";
+            message += $"\n\n... and {extractedWords.Length - 100} more words";
         }
         
         ViewWordsRequested?.Invoke(this, new ViewWordsEventArgs(
-            $"Extracted Words (showing {Math.Min(100, extractedWords.Count)} of {extractedWords.Count})",
+            $"Extracted Words (showing {Math.Min(100, extractedWords.Length)} of {extractedWords.Length})",
             message));
-    }
-    
-    private async Task ExportToFileAsync()
-    {
-        if (extractedWords.Count == 0)
-        {
-            StatusMessage = "No words to export";
-            return;
-        }
-        
-        try
-        {
-            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-            var fileName = $"extracted_words_{timestamp}.txt";
-            var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
-            
-            var service = new EpubWordExtractorService(appSettings);
-            await service.SaveWords(extractedWords, filePath);
-            
-            StatusMessage = $"Exported {extractedWords.Count} words to {fileName}";
-            
-            ShowDialog(
-                "Export Successful",
-                $"Successfully exported {extractedWords.Count:N0} words to:\n\n{fileName}\n\n" +
-                $"Location: {AppContext.BaseDirectory}");
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Error exporting: {ex.Message}";
-            ShowDialog("Export Failed", $"Failed to export words:\n\n{ex.Message}");
-        }
     }
 }
 

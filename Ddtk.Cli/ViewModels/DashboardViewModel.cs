@@ -13,7 +13,6 @@ public class DashboardViewModel : ViewModelBase
 {
     private readonly DataStatusService dataStatusService;
     private readonly WindowDataHelper windowDataHelper;
-    private readonly INavigationService navigationService;
     
     // Observable properties for UI binding
     public string PipelineStatus
@@ -53,14 +52,10 @@ public class DashboardViewModel : ViewModelBase
     public ReactiveCommand<Unit, Unit> StartScrapingCommand { get; }
     public ReactiveCommand<Unit, Unit> BuildDictionaryCommand { get; }
     
-    public DashboardViewModel(
-        DataStatusService dataStatusService,
-        WindowDataHelper windowDataHelper,
-        INavigationService navigationService)
+    public DashboardViewModel(DataStatusService dataStatusService, WindowDataHelper windowDataHelper, INavigationService navigationService)
     {
         this.dataStatusService = dataStatusService;
         this.windowDataHelper = windowDataHelper;
-        this.navigationService = navigationService;
         
         // Initialize commands
         RefreshCommand = ReactiveCommand.CreateFromTask(async () => await LoadDashboardDataAsync(true));
@@ -114,7 +109,7 @@ public class DashboardViewModel : ViewModelBase
                     "Dashboard Refreshed",
                     $"Successfully loaded dashboard data.\n\n" +
                     $"• Seeding words: {dataStatus.SeedingWordsCount:N0}\n" +
-                    $"• Scraped definitions: {dataStatus.WordDefinitionCount:N0}\n" +
+                    $"• Word definitions: {dataStatus.WordDefinitionCount:N0}\n" +
                     $"• Dictionary built: {(dataStatus.KoboDictionaryFileSize > 0 ? "Yes" : "No")}");
             }
         }

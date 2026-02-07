@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using Ddtk.Business.Models;
 using Ddtk.Domain;
 using Ddtk.Domain.Models;
 using HtmlAgilityPack;
@@ -68,7 +69,7 @@ public class EpubWordExtractorService
         // Final progress report
         progress?.Report(new EpubExtractionProgress
         {
-            CurrentFile = null,
+            CurrentFile = string.Empty,
             FilesProcessed = filesProcessed,
             TotalFiles = epubList.Count,
             TotalWords = wordSet.Count

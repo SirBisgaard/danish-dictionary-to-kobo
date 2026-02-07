@@ -28,10 +28,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="../Ddtk.Cli/runtimes/linux-x64/native/libmarisa.so">
+    <None Include="..\Ddtk.Cli\runtimes\linux-x64\native\libmarisa.so">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <Link>libmarisa.so</Link>
+      <Link>DataAccess\libmarisa.so</Link>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataAccess\MarisaNativeTests.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>

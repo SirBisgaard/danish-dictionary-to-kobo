@@ -1,6 +1,8 @@
 using Ddtk.Business;
 using Ddtk.Business.Helpers;
+using Ddtk.Business.Interfaces;
 using Ddtk.Business.Services;
+using Ddtk.Cli;
 using Ddtk.Cli.Helpers;
 using Ddtk.Cli.Interfaces;
 using Ddtk.Cli.Services;
@@ -31,36 +33,29 @@ Terminal.Gui.Configuration.ConfigurationManager.RuntimeConfig = """{ "Theme": "A
 Terminal.Gui.Configuration.ConfigurationManager.Enable(Terminal.Gui.Configuration.ConfigLocations.All);
 
 // Create and initialize the Terminal.Gui application
-var app = Application.Create().Init();
+using var app = Application.Create().Init();
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureServices((_, services) =>
     {
         // Configuration
         services.AddSingleton(appSettings);
-        
-        // Terminal.Gui Application (singleton)
+
+        // Terminal.Gui Application 
         services.AddSingleton(app);
         
-        // Singleton Services (live for entire application lifetime)
-        services.AddSingleton<LoggingService>();
+        // Singleton Services
         services.AddSingleton<FileSystemRepository>();
         services.AddSingleton<DataStatusService>();
-        
-        // Navigation Service (singleton, manages app navigation)
         services.AddSingleton<INavigationService, NavigationService>();
         
-        // Transient Services (new instance per request)
-        services.AddTransient<ProcessMediator>();
-        services.AddTransient<FileSystemService>();
-        services.AddTransient<EpubWordExtractorService>();
+        // Transient Services
+        services.AddTransient<ISeedingWordService, SeedingWordService>();
         services.AddTransient<WindowDataHelper>();
         
-        // UI Components (new instance per window)
         services.AddTransient<MainMenuBar>();
         services.AddTransient<MainStatusBar>();
         
-        // ViewModels (new instance per view)
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<WebScrapingViewModel>();
         services.AddTransient<DictionaryBuildViewModel>();
@@ -69,7 +64,6 @@ var host = Host.CreateDefaultBuilder()
         services.AddTransient<PreviewWordDefinitionViewModel>();
         services.AddTransient<ConfigViewModel>();
         
-        // Views (new instance per window navigation)
         services.AddTransient<DashboardView>();
         services.AddTransient<WebScrapingView>();
         services.AddTransient<DictionaryBuildView>();
@@ -77,6 +71,16 @@ var host = Host.CreateDefaultBuilder()
         services.AddTransient<SeededWordsView>();
         services.AddTransient<PreviewWordDefinitionView>();
         services.AddTransient<ConfigView>();
+        
+        // TODO: Legacy services should be refactored SOL.
+        services.AddSingleton<LoggingService>();
+        services.AddTransient<ProcessMediator>();
+        services.AddTransient<FileSystemService>();
+        services.AddTransient<EpubWordExtractorService>();
+        
+        // UI Components 
+        
+        // ViewModels 
         
         // Logging
         services.AddLogging(builder =>
@@ -89,7 +93,7 @@ var host = Host.CreateDefaultBuilder()
     })
     .Build();
 
-// Start application by navigating to dashboard
+// Starting the application by navigating the dashboard. 🚀
 var navigationService = host.Services.GetRequiredService<INavigationService>();
 navigationService.NavigateTo(WindowChange.DashboardWindow);
 

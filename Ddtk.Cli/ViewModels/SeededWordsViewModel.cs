@@ -14,40 +14,36 @@ public class SeededWordsViewModel : ViewModelBase
     private readonly ProcessMediator processMediator;
     
     // Properties
-    private string searchText = string.Empty;
     public string SearchText
     {
-        get => searchText;
+        get;
         set
         {
-            this.RaiseAndSetIfChanged(ref searchText, value);
+            this.RaiseAndSetIfChanged(ref field, value);
             FilterWords();
         }
-    }
-    
+    } = string.Empty;
+
     private List<string> allWords = [];
-    
-    private ObservableCollection<string> filteredWords = [];
+
     public ObservableCollection<string> FilteredWords
     {
-        get => filteredWords;
-        set => this.RaiseAndSetIfChanged(ref filteredWords, value);
-    }
-    
-    private string listFrameTitle = "Seeded Words (0 total)";
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = [];
+
     public string ListFrameTitle
     {
-        get => listFrameTitle;
-        set => this.RaiseAndSetIfChanged(ref listFrameTitle, value);
-    }
-    
-    private string statistics = "Statistics: Loading...";
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Seeded Words (0 total)";
+
     public string Statistics
     {
-        get => statistics;
-        set => this.RaiseAndSetIfChanged(ref statistics, value);
-    }
-    
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Statistics: Loading...";
+
     // Commands
     public ReactiveCommand<Unit, Unit> LoadWordsCommand { get; }
     public ReactiveCommand<Unit, Unit> ClearSearchCommand { get; }

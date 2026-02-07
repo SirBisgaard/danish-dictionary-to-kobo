@@ -74,7 +74,7 @@ public class WebScrapingViewModel : ViewModelBase, IDisposable
         set => this.RaiseAndSetIfChanged(ref field, value);
     }
 
-    public ObservableCollection<string> ActivityLog { get; } = new();
+    public ObservableCollection<string> ActivityLog { get; } = [];
     
     // Commands
     public ReactiveCommand<Unit, Unit> StartScrapingCommand { get; }

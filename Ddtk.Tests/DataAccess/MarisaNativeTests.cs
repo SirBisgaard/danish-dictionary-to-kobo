@@ -2,7 +2,7 @@ using System.Text;
 using Ddtk.DataAccess;
 using FluentAssertions;
 
-namespace Ddtk.Tests;
+namespace Ddtk.Tests.DataAccess;
 
 /// <summary>
 /// Integration tests for MarisaNative class.

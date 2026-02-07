@@ -12,83 +12,72 @@ public class ConfigViewModel : ViewModelBase
     private readonly string appSettingsPath;
     
     // Configuration properties
-    private string culture = string.Empty;
     public string Culture
     {
-        get => culture;
-        set => this.RaiseAndSetIfChanged(ref culture, value);
-    }
-    
-    private string logFileName = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string LogFileName
     {
-        get => logFileName;
-        set => this.RaiseAndSetIfChanged(ref logFileName, value);
-    }
-    
-    private string seedingWordsFileName = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string SeedingWordsFileName
     {
-        get => seedingWordsFileName;
-        set => this.RaiseAndSetIfChanged(ref seedingWordsFileName, value);
-    }
-    
-    private string wordDefinitionFileName = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string WordDefinitionFileName
     {
-        get => wordDefinitionFileName;
-        set => this.RaiseAndSetIfChanged(ref wordDefinitionFileName, value);
-    }
-    
-    private string koboDictionaryFileName = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string KoboDictionaryFileName
     {
-        get => koboDictionaryFileName;
-        set => this.RaiseAndSetIfChanged(ref koboDictionaryFileName, value);
-    }
-    
-    private string koboDictionaryTestHtmlFileName = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string KoboDictionaryTestHtmlFileName
     {
-        get => koboDictionaryTestHtmlFileName;
-        set => this.RaiseAndSetIfChanged(ref koboDictionaryTestHtmlFileName, value);
-    }
-    
-    private string dictionaryCopyRightText = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string DictionaryCopyRightText
     {
-        get => dictionaryCopyRightText;
-        set => this.RaiseAndSetIfChanged(ref dictionaryCopyRightText, value);
-    }
-    
-    private string webScraperBaseAddress = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string WebScraperBaseAddress
     {
-        get => webScraperBaseAddress;
-        set => this.RaiseAndSetIfChanged(ref webScraperBaseAddress, value);
-    }
-    
-    private string webScraperWordAddress = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string WebScraperWordAddress
     {
-        get => webScraperWordAddress;
-        set => this.RaiseAndSetIfChanged(ref webScraperWordAddress, value);
-    }
-    
-    private string webScraperStartUrl = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string WebScraperStartUrl
     {
-        get => webScraperStartUrl;
-        set => this.RaiseAndSetIfChanged(ref webScraperStartUrl, value);
-    }
-    
-    private string webScraperWorkerCount = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string WebScraperWorkerCount
     {
-        get => webScraperWorkerCount;
-        set => this.RaiseAndSetIfChanged(ref webScraperWorkerCount, value);
-    }
-    
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     // Commands
     public ReactiveCommand<Unit, Unit> SaveCommand { get; }
     public ReactiveCommand<Unit, Unit> CancelCommand { get; }
@@ -102,9 +91,6 @@ public class ConfigViewModel : ViewModelBase
         SaveCommand = ReactiveCommand.CreateFromTask(SaveAsync);
         CancelCommand = ReactiveCommand.Create(Cancel);
         LoadSettingsCommand = ReactiveCommand.CreateFromTask(LoadSettingsAsync);
-        
-        // Auto-load settings on construction
-        LoadSettingsCommand.Execute().Subscribe();
     }
     
     public async Task LoadSettingsAsync()

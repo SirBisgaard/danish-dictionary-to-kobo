@@ -36,6 +36,9 @@ public class ConfigView : BaseView<ConfigViewModel>
         // Initialize immediately in constructor
         InitializeLayout();
         BindViewModel();
+        
+        // Start async data loading
+        Task.Run(viewModel.LoadSettingsAsync);
     }
     
     public override void InitializeLayout()

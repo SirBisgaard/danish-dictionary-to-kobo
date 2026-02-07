@@ -13,27 +13,24 @@ public class PreviewWordDefinitionViewModel : ViewModelBase
     private readonly AppSettings appSettings;
     
     // Properties
-    private string word = "Hacker";
     public string Word
     {
-        get => word;
-        set => this.RaiseAndSetIfChanged(ref word, value);
-    }
-    
-    private string rawHtml = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = "Hacker";
+
     public string RawHtml
     {
-        get => rawHtml;
-        set => this.RaiseAndSetIfChanged(ref rawHtml, value);
-    }
-    
-    private string humanReadable = string.Empty;
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     public string HumanReadable
     {
-        get => humanReadable;
-        set => this.RaiseAndSetIfChanged(ref humanReadable, value);
-    }
-    
+        get;
+        set => this.RaiseAndSetIfChanged(ref field, value);
+    } = string.Empty;
+
     // Commands
     public ReactiveCommand<Unit, Unit> GeneratePreviewCommand { get; }
     public ReactiveCommand<Unit, Unit> SaveHtmlCommand { get; }
