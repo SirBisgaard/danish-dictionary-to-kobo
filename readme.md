@@ -267,7 +267,7 @@ dotnet test --filter "FullyQualifiedName~MethodName"
 Tests follow the Arrange-Act-Assert (AAA) pattern:
 
 ```csharp
-[Fact]
+[TestMethod]
 public void MethodName_ShouldExpectedBehavior_WhenCondition()
 {
     // Arrange

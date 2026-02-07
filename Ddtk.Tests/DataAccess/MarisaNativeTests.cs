@@ -8,6 +8,7 @@ namespace Ddtk.Tests.DataAccess;
 /// Integration tests for MarisaNative class.
 /// Tests verify that the native libmarisa.so library loads and functions correctly.
 /// </summary>
+[TestClass]
 public class MarisaNativeTests : IDisposable
 {
     private readonly string testDirectory;
@@ -28,7 +29,7 @@ public class MarisaNativeTests : IDisposable
         }
     }
 
-    [Fact]
+    [TestMethod]
     public void BindMarisa_ShouldLoadNativeLibrary_WithoutException()
     {
         // Arrange
@@ -41,7 +42,7 @@ public class MarisaNativeTests : IDisposable
         act.Should().NotThrow("the native library should load successfully");
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateBuilder_ShouldReturnValidPointer_WhenCalled()
     {
         // Arrange
@@ -57,7 +58,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void PushIntoBuilder_ShouldReturnSuccess_WhenAddingKey()
     {
         // Arrange
@@ -75,7 +76,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void PushIntoBuilder_ShouldAcceptMultipleKeys_WhenCalledRepeatedly()
     {
         // Arrange
@@ -96,7 +97,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void BuildBuilder_ShouldReturnValidTrie_WhenKeysAdded()
     {
         // Arrange
@@ -116,7 +117,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void BuildBuilder_ShouldReturnValidTrie_WhenNoKeysAdded()
     {
         // Arrange
@@ -134,7 +135,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void SaveTrie_ShouldCreateFile_WhenTrieIsBuilt()
     {
         // Arrange
@@ -157,7 +158,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void SaveTrie_ShouldCreateValidFile_WithMultipleKeys()
     {
         // Arrange
@@ -187,7 +188,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void DestroyBuilder_ShouldNotThrow_WhenCalledWithValidPointer()
     {
         // Arrange
@@ -201,7 +202,7 @@ public class MarisaNativeTests : IDisposable
         act.Should().NotThrow("destroying a valid builder should succeed");
     }
 
-    [Fact]
+    [TestMethod]
     public void DestroyTrie_ShouldNotThrow_WhenCalledWithValidPointer()
     {
         // Arrange
@@ -219,7 +220,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void FullWorkflow_ShouldCompleteSuccessfully_WithDanishWords()
     {
         // Arrange
@@ -248,7 +249,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void PushIntoBuilder_ShouldHandleUtf8Characters_InDanishWords()
     {
         // Arrange
@@ -268,7 +269,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LoadTrie_ShouldReturnValidPointer_WhenFileExists()
     {
         // Arrange
@@ -292,7 +293,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LoadTrie_ShouldReturnZero_WhenFileDoesNotExist()
     {
         // Arrange
@@ -306,7 +307,7 @@ public class MarisaNativeTests : IDisposable
         triePtr.Should().Be(IntPtr.Zero, "loading non-existent file should return null pointer");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNumKeys_ShouldReturnCorrectCount_WhenTrieHasKeys()
     {
         // Arrange
@@ -333,7 +334,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNumKeys_ShouldReturnZero_WhenTrieIsEmpty()
     {
         // Arrange
@@ -352,7 +353,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void CreateAgent_ShouldReturnValidPointer_WhenCalled()
     {
         // Arrange
@@ -368,7 +369,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyAgent(agentPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void DestroyAgent_ShouldNotThrow_WhenCalledWithValidPointer()
     {
         // Arrange
@@ -382,7 +383,7 @@ public class MarisaNativeTests : IDisposable
         act.Should().NotThrow("destroying a valid agent should succeed");
     }
 
-    [Fact]
+    [TestMethod]
     public void LookupKey_ShouldReturnOne_WhenKeyExists()
     {
         // Arrange
@@ -413,7 +414,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LookupKey_ShouldReturnZero_WhenKeyDoesNotExist()
     {
         // Arrange
@@ -444,7 +445,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LookupKey_ShouldWorkWithDanishCharacters_WhenKeyExists()
     {
         // Arrange
@@ -475,7 +476,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void ReverseLookup_ShouldReturnSuccess_WhenKeyIdIsValid()
     {
         // Arrange
@@ -504,7 +505,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetAgentKey_ShouldRetrieveKey_AfterReverseLookup()
     {
         // Arrange
@@ -537,7 +538,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void GetAgentKey_ShouldHandleDanishCharacters_AfterReverseLookup()
     {
         // Arrange
@@ -575,7 +576,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LoadTrie_AndLookup_ShouldFindKeys_AfterSavingAndLoading()
     {
         // Arrange
@@ -610,7 +611,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LoadTrie_AndEnumerateAllKeys_ShouldRetrieveAllStoredKeys()
     {
         // Arrange
@@ -654,7 +655,7 @@ public class MarisaNativeTests : IDisposable
         MarisaNative.DestroyBuilder(builderPtr);
     }
 
-    [Fact]
+    [TestMethod]
     public void LoadTrie_AndEnumerateAllKeys_ShouldWorkWithDanishWords()
     {
         // Arrange

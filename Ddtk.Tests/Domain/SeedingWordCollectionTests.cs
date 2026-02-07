@@ -7,9 +7,10 @@ namespace Ddtk.Tests.Domain;
 /// Unit tests for SeedingWordCollection class.
 /// Tests verify word collection creation, counting, and new word detection.
 /// </summary>
+[TestClass]
 public class SeedingWordCollectionTests
 {
-    [Fact]
+    [TestMethod]
     public void Count_ShouldReturnZero_WhenCreatedWithEmptyCollection()
     {
         // Arrange
@@ -22,7 +23,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(0, "an empty collection should have zero words");
     }
 
-    [Fact]
+    [TestMethod]
     public void Count_ShouldReturnCorrectCount_WhenCreatedWithUniqueWords()
     {
         // Arrange
@@ -35,7 +36,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(3, "collection should contain all unique words");
     }
 
-    [Fact]
+    [TestMethod]
     public void Count_ShouldDeduplicateWords_WhenCreatedWithDuplicates()
     {
         // Arrange
@@ -48,7 +49,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(3, "duplicate words should be removed");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNewWordsCount_ShouldReturnZero_WhenOtherIsEmpty()
     {
         // Arrange
@@ -62,7 +63,7 @@ public class SeedingWordCollectionTests
         result.Should().Be(0, "an empty other collection has no new words");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNewWordsCount_ShouldReturnZero_WhenAllWordsAlreadyExist()
     {
         // Arrange
@@ -76,7 +77,7 @@ public class SeedingWordCollectionTests
         result.Should().Be(0, "all words in other already exist in this collection");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNewWordsCount_ShouldReturnCount_WhenAllWordsAreNew()
     {
         // Arrange
@@ -90,7 +91,7 @@ public class SeedingWordCollectionTests
         result.Should().Be(2, "all words in other are new");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNewWordsCount_ShouldReturnPartialCount_WhenSomeWordsAreNew()
     {
         // Arrange
@@ -104,7 +105,7 @@ public class SeedingWordCollectionTests
         result.Should().Be(2, "only words not in this collection should be counted");
     }
 
-    [Fact]
+    [TestMethod]
     public void GetNewWordsCount_ShouldReturnOtherCount_WhenThisCollectionIsEmpty()
     {
         // Arrange
@@ -118,7 +119,7 @@ public class SeedingWordCollectionTests
         result.Should().Be(3, "all words should be new when this collection is empty");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldIncreaseCount_WhenAddingNewWords()
     {
         // Arrange
@@ -131,7 +132,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(4, "new words should be added to the collection");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldNotIncreaseCount_WhenAddingExistingWords()
     {
         // Arrange
@@ -144,7 +145,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(3, "existing words should not be added again");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldOnlyAddNewWords_WhenAddingMixOfExistingAndNew()
     {
         // Arrange
@@ -157,7 +158,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(4, "only new words should be added");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldReturnSameInstance_WhenCalled()
     {
         // Arrange
@@ -170,7 +171,7 @@ public class SeedingWordCollectionTests
         result.Should().BeSameAs(collection, "AddWords should return the same instance for chaining");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldNotChangeCount_WhenAddingEmptyCollection()
     {
         // Arrange
@@ -183,7 +184,7 @@ public class SeedingWordCollectionTests
         collection.Count.Should().Be(2, "adding empty collection should not change count");
     }
 
-    [Fact]
+    [TestMethod]
     public void AddWords_ShouldAffectGetNewWordsCount_WhenNewWordsAreAdded()
     {
         // Arrange
