@@ -12,9 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="HtmlAgilityPack">
-        <HintPath>..\..\..\..\..\home\martin\.nuget\packages\htmlagilitypack\1.12.1\lib\net8.0\HtmlAgilityPack.dll</HintPath>
-      </Reference>
+        <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
     </ItemGroup>
-
 </Project>

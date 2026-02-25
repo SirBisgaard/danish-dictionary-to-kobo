@@ -6,7 +6,7 @@ public class SeedingWordCollection
 
     public SeedingWordCollection(IEnumerable<string> words)
     {
-        this.words.UnionWith(words);
+        this.words.UnionWith(words.Select(w => w.ToLowerInvariant()));
     }
 
     /// <summary>
@@ -16,15 +16,17 @@ public class SeedingWordCollection
     /// <returns></returns>
     public int GetNewWordsCount(SeedingWordCollection other)
     {
-        return other.words.Count(w => !words.Contains(w));
+        return other.words.Count(w => !words.Contains(w.ToLowerInvariant()));
     }
     
     public SeedingWordCollection AddWords(IEnumerable<string> newWords)
     {
-        words.UnionWith(newWords);
+        words.UnionWith(newWords.Select(w => w.ToLowerInvariant()));
 
         return this;
     }
     
     public int Count => words.Count;
+    
+    public IEnumerable<string> Words => words.ToArray();
 }

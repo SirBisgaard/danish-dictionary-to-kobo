@@ -1,5 +1,4 @@
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Text.Json;
 using Ddtk.Domain;
 using Microsoft.Extensions.Configuration;

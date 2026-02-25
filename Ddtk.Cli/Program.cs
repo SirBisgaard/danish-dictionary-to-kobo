@@ -1,8 +1,6 @@
 using Ddtk.Business;
-using Ddtk.Business.Helpers;
 using Ddtk.Business.Interfaces;
 using Ddtk.Business.Services;
-using Ddtk.Cli;
 using Ddtk.Cli.Helpers;
 using Ddtk.Cli.Interfaces;
 using Ddtk.Cli.Services;
@@ -10,6 +8,7 @@ using Ddtk.Cli.ViewModels;
 using Ddtk.Cli.Views;
 using Ddtk.Cli.Views.Components;
 using Ddtk.DataAccess;
+using Ddtk.DataAccess.Interfaces;
 using Ddtk.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,7 +44,7 @@ var host = Host.CreateDefaultBuilder()
         services.AddSingleton(app);
         
         // Singleton Services
-        services.AddSingleton<FileSystemRepository>();
+        services.AddSingleton<IFileSystemRepository, FileSystemRepository>();
         services.AddSingleton<DataStatusService>();
         services.AddSingleton<INavigationService, NavigationService>();
         
@@ -76,7 +75,6 @@ var host = Host.CreateDefaultBuilder()
         services.AddSingleton<LoggingService>();
         services.AddTransient<ProcessMediator>();
         services.AddTransient<FileSystemService>();
-        services.AddTransient<EpubWordExtractorService>();
         
         // UI Components 
         

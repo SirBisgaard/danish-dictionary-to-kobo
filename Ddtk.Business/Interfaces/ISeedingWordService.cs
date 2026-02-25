@@ -5,7 +5,7 @@ namespace Ddtk.Business.Interfaces;
 
 public interface ISeedingWordService
 {
-    public string GetSeedingWordsFileName();
+    public Task<string> GetSeedingWordsFileName();
     public Task<SeedingWordCollection> LoadSeedingWords();
     public Task SaveSeedingWords(SeedingWordCollection words);
 
@@ -15,6 +15,5 @@ public interface ISeedingWordService
     /// <param name="filePaths"></param>
     /// <param name="progress"></param>
     /// <returns></returns>
-    public Task<string[]> ExtractWordsFromFiles(string[] filePaths,
-        IProgress<EpubExtractionProgress>? progress = null);
+    public Task<SeedingWordCollection> ExtractWordsFromFiles(string[] filePaths, IProgress<EpubExtractionProgress>? progress = null);
 }

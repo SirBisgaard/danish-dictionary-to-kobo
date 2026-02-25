@@ -1,14 +1,16 @@
-using Ddtk.DataAccess;
+using Ddtk.Business.Interfaces;
+using Ddtk.DataAccess.Interfaces;
 using Ddtk.Domain.Models;
 
 namespace Ddtk.Business.Services;
 
-public class DataStatusService(FileSystemRepository fileSystemRepository)
+public class DataStatusService(IFileSystemRepository fileSystemRepository, ISeedingWordService seedingWordService)
 {
     public async Task<DataStatus> GetCurrentStatus()
     {
-        var seedingWords = await fileSystemRepository.LoadSeedingWords();
+        var seedingWords = await seedingWordService.LoadSeedingWords();
         var seedingWordsFileInfo = await fileSystemRepository.GetSeedingWordsFileInfo();
+        
         var wordDefinitions = await fileSystemRepository.LoadWordDefinitions();
         var wordDefinitionsFileInfo = await fileSystemRepository.GetWordDefinitionsFileInfo();
         var koboDictionaryFileInfo = await fileSystemRepository.GetKoboDictionaryFileInfo();

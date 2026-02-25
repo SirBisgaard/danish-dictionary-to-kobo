@@ -36,6 +36,11 @@ public class FileSystemRepository(AppSettings appSettings) : IFileSystemReposito
         });
     }
 
+    public Task SaveSeedingWords(IEnumerable<string> words)
+    {
+        return SaveFile(seedingWordsFileInfo, words.ToList());
+    }
+
     public async Task<IList<WordDefinition>> LoadWordDefinitions()
     {
         wordDefinitionsFileInfo.Refresh();
@@ -73,14 +78,30 @@ public class FileSystemRepository(AppSettings appSettings) : IFileSystemReposito
 
     private async Task<T> LoadFile<T>(FileInfo fileInfo)
     {
-        await using var fileContent = File.OpenRead(fileInfo.FullName);
+        await using var fileStream = File.OpenRead(fileInfo.FullName);
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
         };
-        var deserializedObject = await JsonSerializer.DeserializeAsync<T>(fileContent, options);
+        var deserializedObject = await JsonSerializer.DeserializeAsync<T>(fileStream, options);
         
         return deserializedObject ?? throw new ArgumentNullException(nameof(deserializedObject), "Deserialized object is null.");
+    }
+
+    private async Task SaveFile<T>(FileInfo fileInfo, T data)
+    {
+        if (fileInfo.Exists)
+        {
+            File.Delete(fileInfo.FullName);
+        }
+        
+        await using var fileStream = File.OpenWrite(fileInfo.FullName);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+        };
+        await JsonSerializer.SerializeAsync(fileStream, data, options);
     }
 }

@@ -1,13 +1,10 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Reactive;
-using System.Reactive.Linq;
 using System.Text;
 using Ddtk.Business.Interfaces;
 using Ddtk.Business.Models;
-using Ddtk.Business.Services;
 using Ddtk.Domain;
-using Ddtk.Domain.Models;
 using ReactiveUI;
 
 namespace Ddtk.Cli.ViewModels;
@@ -70,7 +67,7 @@ public class EpubWordExtractionViewModel : ViewModelBase
         set => this.RaiseAndSetIfChanged(ref field, value);
     } = false;
 
-    private string[] extractedWords = [];
+    private SeedingWordCollection extractedWords = new([]);
     private bool isExtracting;
     
     // Events for file dialogs (Views will handle these)
@@ -103,14 +100,12 @@ public class EpubWordExtractionViewModel : ViewModelBase
     
     public void AddFiles(IEnumerable<string> filePaths)
     {
-        var addedCount = 0;
         foreach (var filePath in filePaths)
         {
             if (filePath.EndsWith(".epub", StringComparison.OrdinalIgnoreCase) && 
                 !SelectedFiles.Contains(filePath))
             {
                 SelectedFiles.Add(filePath);
-                addedCount++;
             }
         }
         
@@ -122,14 +117,12 @@ public class EpubWordExtractionViewModel : ViewModelBase
         if (Directory.Exists(folderPath))
         {
             var epubFiles = Directory.GetFiles(folderPath, "*.epub", SearchOption.AllDirectories);
-            var addedCount = 0;
-            
+
             foreach (var epubFile in epubFiles)
             {
                 if (!SelectedFiles.Contains(epubFile))
                 {
                     SelectedFiles.Add(epubFile);
-                    addedCount++;
                 }
             }
             
@@ -138,12 +131,13 @@ public class EpubWordExtractionViewModel : ViewModelBase
         else
         {
             // Treat as single file selection
-            if (folderPath.EndsWith(".epub", StringComparison.OrdinalIgnoreCase) && 
-                !SelectedFiles.Contains(folderPath))
+            if (!folderPath.EndsWith(".epub", StringComparison.OrdinalIgnoreCase) || SelectedFiles.Contains(folderPath))
             {
-                SelectedFiles.Add(folderPath);
-                UpdateFilesList();
+                return;
             }
+            
+            SelectedFiles.Add(folderPath);
+            UpdateFilesList();
         }
     }
     
@@ -151,7 +145,7 @@ public class EpubWordExtractionViewModel : ViewModelBase
     {
         SelectedFiles.Clear();
         UpdateFilesList();
-        extractedWords = [];
+        extractedWords = new SeedingWordCollection([]);
         ProgressFraction = 0;
         ProgressText = "Ready";
         Statistics = "";
@@ -202,17 +196,17 @@ public class EpubWordExtractionViewModel : ViewModelBase
                 SelectedFiles.ToArray(),
                 progress);
             var existingWords = await seedingWordService.LoadSeedingWords();
-            var newWordsCount = existingWords.GetNewWordsCount(new SeedingWordCollection(extractedWords));
+            var newWordsCount = existingWords.GetNewWordsCount(extractedWords);
             
             
             UpdateStats(
-                extractedWords.Length,
+                extractedWords.Count,
                 newWordsCount,
                 existingWords.Count,
                 SelectedFiles.Count,
                 SelectedFiles.Count);
             
-            StatusMessage = $"Extraction complete! Found {extractedWords.Length} unique words";
+            StatusMessage = $"Extraction complete! Found {extractedWords.Count} unique words";
             CanSave = true;
             CanViewWords = true;
             CanExport = true;
@@ -220,7 +214,7 @@ public class EpubWordExtractionViewModel : ViewModelBase
             ShowDialog(
                 "Extraction Complete",
                 $"Successfully extracted words from {SelectedFiles.Count} EPUB file(s).\n\n" +
-                $"• Total unique words: {extractedWords.Length:N0}\n" +
+                $"• Total unique words: {extractedWords.Count:N0}\n" +
                 $"• New words: {newWordsCount:N0}\n" +
                 $"• Already known: {existingWords.Count:N0}");
         }
@@ -252,7 +246,7 @@ public class EpubWordExtractionViewModel : ViewModelBase
     
     private async Task SaveToSeedingWordsAsync()
     {
-        if (extractedWords.Length == 0)
+        if (extractedWords.Count == 0)
         {
             return;
         }
@@ -261,7 +255,8 @@ public class EpubWordExtractionViewModel : ViewModelBase
         {
             // Load existing and merge
             var existingWords = await seedingWordService.LoadSeedingWords();
-            existingWords.AddWords(extractedWords);
+            var fileName = await seedingWordService.GetSeedingWordsFileName();
+            existingWords.AddWords(extractedWords.Words);
             await seedingWordService.SaveSeedingWords(existingWords);
             
             
@@ -269,7 +264,7 @@ public class EpubWordExtractionViewModel : ViewModelBase
                 "Saved to Seeding Words",
                 $"Successfully saved words to seeding file.\n\n" +
                 $"• Total words in file: {existingWords.Count:N0}\n" +
-                $"• File: {seedingWordService.GetSeedingWordsFileName()}");
+                $"• File: {fileName}");
         }
         catch (Exception ex)
         {
@@ -279,24 +274,25 @@ public class EpubWordExtractionViewModel : ViewModelBase
     
     private void ViewWords()
     {
-        if (extractedWords.Length == 0)
+        if (extractedWords.Count == 0)
         {
             return;
         }
         
         var wordList = extractedWords
+            .Words
             .OrderBy(w => w, StringComparer.Create(CultureInfo.CurrentCulture, true))
-            .Take(100)
+            .Take(1000)
             .ToList();
         
         var message = string.Join("\n", wordList);
-        if (extractedWords.Length > 100)
+        if (extractedWords.Count > 1000)
         {
-            message += $"\n\n... and {extractedWords.Length - 100} more words";
+            message += $"\n\n... and {extractedWords.Count - 1000} more words";
         }
         
         ViewWordsRequested?.Invoke(this, new ViewWordsEventArgs(
-            $"Extracted Words (showing {Math.Min(100, extractedWords.Length)} of {extractedWords.Length})",
+            $"Extracted Words (showing {Math.Min(1000, extractedWords.Count)} of {extractedWords.Count})",
             message));
     }
 }
